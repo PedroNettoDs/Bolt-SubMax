@@ -1,0 +1,107 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Avaliações - Bolt-SubMax{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Avaliações</h1>
+            <a href="#" class="btn btn-primary">Nova Avaliação</a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                {% if avaliacoes %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Aluno</th>
+                                    <th>Data</th>
+                                    <th>Peso</th>
+                                    <th>Altura</th>
+                                    <th>IMC</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for avaliacao in avaliacoes %}
+                                <tr>
+                                    <td>{{ avaliacao.id }}</td>
+                                    <td>{{ avaliacao.aluno|default:"-" }}</td>
+                                    <td>{{ avaliacao.data|default:"-" }}</td>
+                                    <td>{{ avaliacao.peso|default:"-" }}</td>
+                                    <td>{{ avaliacao.altura|default:"-" }}</td>
+                                    <td>{{ avaliacao.imc|default:"-" }}</td>
+                                    <td>
+                                        <a href="#" class="btn btn-sm btn-outline-primary">Ver</a>
+                                        <a href="#" class="btn btn-sm btn-outline-warning">Editar</a>
+                                        <a href="#" class="btn btn-sm btn-outline-danger">Excluir</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Paginação -->
+                    {% if is_paginated %}
+                    <div class="pagination-container">
+                        <nav aria-label="Navegação de páginas">
+                            <ul class="pagination">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=1">Primeira</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                                    </li>
+                                {% endif %}
+
+                                {% for num in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Última</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+
+                    <div class="text-center text-muted">
+                        Mostrando {{ page_obj.start_index }} a {{ page_obj.end_index }} de {{ page_obj.paginator.count }} avaliações
+                    </div>
+                    {% endif %}
+
+                {% else %}
+                    <div class="text-center py-5">
+                        <h4 class="text-muted">Nenhuma avaliação encontrada</h4>
+                        <p class="text-muted">Comece cadastrando a primeira avaliação.</p>
+                        <a href="#" class="btn btn-primary">Cadastrar Avaliação</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

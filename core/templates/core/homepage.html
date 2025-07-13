@@ -1,0 +1,111 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Dashboard - Bolt-SubMax{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Dashboard</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="card stats-card">
+            <div class="card-header">
+                <h5 class="mb-0">Total de Alunos</h5>
+            </div>
+            <div class="card-body">
+                <h2 class="text-primary">{{ total_alunos }}</h2>
+                <a href="{% url 'alunos_list' %}" class="btn btn-sm btn-outline-primary">Ver todos</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card stats-card">
+            <div class="card-header">
+                <h5 class="mb-0">Total de Treinos</h5>
+            </div>
+            <div class="card-body">
+                <h2 class="text-success">{{ total_treinos }}</h2>
+                <a href="{% url 'treinos_list' %}" class="btn btn-sm btn-outline-success">Ver todos</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card stats-card">
+            <div class="card-header">
+                <h5 class="mb-0">Total de Exercícios</h5>
+            </div>
+            <div class="card-body">
+                <h2 class="text-warning">{{ total_exercicios }}</h2>
+                <a href="{% url 'exercicios_list' %}" class="btn btn-sm btn-outline-warning">Ver todos</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card stats-card">
+            <div class="card-header">
+                <h5 class="mb-0">Total de Avaliações</h5>
+            </div>
+            <div class="card-body">
+                <h2 class="text-info">{{ total_avaliacoes }}</h2>
+                <a href="{% url 'avaliacoes_list' %}" class="btn btn-sm btn-outline-info">Ver todos</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Últimos Alunos</h5>
+            </div>
+            <div class="card-body">
+                {% if ultimos_alunos %}
+                    <div class="list-group">
+                        {% for aluno in ultimos_alunos %}
+                            <div class="list-group-item">
+                                <strong>{{ aluno.nome }}</strong>
+                                {% if aluno.email %}
+                                    <br><small class="text-muted">{{ aluno.email }}</small>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Nenhum aluno cadastrado ainda.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Últimos Treinos</h5>
+            </div>
+            <div class="card-body">
+                {% if ultimos_treinos %}
+                    <div class="list-group">
+                        {% for treino in ultimos_treinos %}
+                            <div class="list-group-item">
+                                <strong>{{ treino.nome }}</strong>
+                                {% if treino.descricao %}
+                                    <br><small class="text-muted">{{ treino.descricao|truncatewords:10 }}</small>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Nenhum treino cadastrado ainda.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

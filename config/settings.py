@@ -45,8 +45,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',  # Identifica o usuário logado
     'django.contrib.messages.middleware.MessageMiddleware', # Permite usar mensagens temporárias
     'django.middleware.clickjacking.XFrameOptionsMiddleware',   # Protege contra cliques maliciosos
-    'organizacao.middleware.LoginRequiredMiddleware',  # Middleware personalizado para exigir login
-    'core.middleware.OrganizacaoMiddleware',  # Middleware personalizado para definir organização
+    # 'organizacao.middleware.LoginRequiredMiddleware',  # Middleware personalizado para exigir login
+    # 'core.middleware.OrganizacaoMiddleware',  # Middleware personalizado para definir organização
 ]
 
 # Define o arquivo principal de URLs do projeto
@@ -128,3 +128,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Configura onde os arquivos enviados (uploads) serão salvos e acessados
 MEDIA_URL = '/media/'  # Caminho público para acessar os arquivos
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Pasta onde os arquivos são armazenados
+
+# Configurações do Django REST Framework
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,  # Número de itens por página
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
+}
