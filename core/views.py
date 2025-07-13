@@ -87,3 +87,25 @@ def avaliacoes_list(request):
         'is_paginated': avaliacoes.has_other_pages(),
         'page_obj': avaliacoes,
     })
+from .forms import AlunoForm, ExercicioForm, RotinaForm, AvaliacaoForm
+
+
+def aluno_create(request):
+    form = AlunoForm()
+    return render(request, 'core/aluno_form.html', {'form': form})
+
+
+def exercicio_create(request):
+    form = ExercicioForm()
+    return render(request, 'core/exercicio_form.html', {'form': form})
+
+
+def treino_create(request):
+    form = RotinaForm()
+    return render(request, 'core/treino_form.html', {'form': form})
+
+
+def avaliacao_create(request):
+    form = AvaliacaoForm()
+    return render(request, 'core/avaliacao_form.html', {'form': form})
+

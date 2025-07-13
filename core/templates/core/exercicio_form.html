@@ -1,0 +1,26 @@
+{% extends 'core/base.html' %}
+{% block title %}Novo Exercício{% endblock %}
+{% block content %}
+<h1>Novo Exercício</h1>
+<form id="exercicio-form">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Salvar</button>
+    <a href="{% url 'exercicios_list' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+<script>
+const form = document.getElementById('exercicio-form');
+form.addEventListener('submit', function(e){
+    e.preventDefault();
+    const data = new FormData(form);
+    fetch('/api/exercicios/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': data.get('csrfmiddlewaretoken') },
+        body: data
+    }).then(r => {
+        if(r.ok){ window.location.href = '{% url 'exercicios_list' %}'; }
+        else { r.json().then(d => alert(JSON.stringify(d))); }
+    });
+});
+</script>
+{% endblock %}
