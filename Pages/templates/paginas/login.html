@@ -1,0 +1,147 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8">
+    <title>Login - SubMax</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link rel="icon" type="image/x-icon" href="{% static 'img/icon.png' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style> 
+      .max-w-330 {
+        max-width: 330px;
+      }
+      .background-gym {
+          background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                      url('{% static "img/gym.jpg" %}') center center / cover no-repeat;
+      }
+      .btn-primary {
+          background-color: #0d47a1 !important;
+          border-color: #0d47a1 !important;
+      }
+      .btn-primary:hover {
+          background-color: #0d314a !important;
+          color: white !important;
+      }
+      .logo-az {
+          color: white !important;
+          background-color: #0d47a1;
+          padding-left: 5px;
+          padding-right: 15px;
+          border-radius: 0px 40px 0px 0px; 
+      }
+      .logo-br {
+          color: #0d47a1 !important;
+          background-color: white;
+          padding-left: 15px;
+          padding-right: 5px;
+          border-radius: 0px 0px 0px 40px; 
+      }
+    </style>
+  </head>
+
+  <body class="m-0 p-0">
+    <div class="container-fluid">
+      <div class="row vh-100">
+
+        <!-- Lado esquerdo com imagem -->
+        <div class="col-md-6 d-none d-md-block p-0">
+          <div class="background-gym d-flex justify-content-center align-items-center h-100 w-100">
+            <h1 class="text-white fw-bold display-1">
+              <span class="logo-br">Sub</span><span class="logo-az">MAX</span>
+            </h1>
+          </div>
+        </div>
+
+        <!-- Lado direito com formulário -->
+        <div class="col-md-6 d-flex justify-content-center align-items-center">
+          <div class="w-75 max-w-330">
+            <h2 class="fw-bold">Olá Novamente!</h2>
+            <p class="text-muted mb-4">Bem-vindo de volta</p>
+
+            <!-- Formulário -->
+            <form id="formLogin" method="POST" action="{% url 'login' %}">
+              {% csrf_token %}
+              <!-- Campo CPF com máscara -->
+              <input type="text" name="cpf" id="cpf" placeholder="CPF" class="form-control mb-3" maxlength="14" required>
+
+              <!-- Campo senha -->
+              <input type="password" name="password" id="password" placeholder="Senha" class="form-control mb-3" required>
+
+              <!-- Botão que chama função JS -->
+              <button type="button" class="btn btn-primary w-100" onclick="loginUsuario()">Login</button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Máscara e validação de CPF -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("formLogin");
+
+      form.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault(); // Impede o envio padrão do formulário
+          loginUsuario();         // Chama sua função personalizada
+        }
+      });
+    })
+
+      // Aplica máscara de CPF
+      document.getElementById('cpf').addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 11) value = value.slice(0, 11);
+        value = value.replace(/(\d{3})(\d)/, '$1.$2');
+        value = value.replace(/(\d{3})(\d)/, '$1.$2');
+        value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+        e.target.value = value;
+      });
+
+      async function loginUsuario() {
+      // Limpa mensagens antigas
+      const existingAlert = document.querySelector(".alert");
+      if (existingAlert) existingAlert.remove();
+
+      const cpfRaw = document.getElementById("cpf").value;
+      const password = document.getElementById("password").value;
+      const cpf = cpfRaw.replace(/\D/g, '');
+
+      const response = await fetch("{% url 'login' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify({ cpf, password })
+      });
+
+      const data = await response.json();
+
+       if (data.success) {
+          window.location.href = data.redirect_url;
+        } else {
+          const form = document.getElementById("formLogin");
+          const alertType = data.level === "warning" ? "alert-warning" : "alert-danger";
+          const alertHTML = `
+            <div class="alert ${alertType} alert-dismissible fade show mt-2" role="alert">
+              ${data.message}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>`;
+          form.insertAdjacentHTML("beforebegin", alertHTML);
+        }
+    }
+
+    </script>
+
+  </body>
+</html>

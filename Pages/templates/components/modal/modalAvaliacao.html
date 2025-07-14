@@ -1,0 +1,462 @@
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+
+<style>
+  .custom-model-avaliacao {
+    background-color: #0d47a1;
+    color: #fff !important;
+  }
+
+  .custom-icone {
+    color: #fff !important;
+  }
+
+  .icone-salvar {
+    background-color: #0d47a1;
+  }
+
+  .modal-body {
+    max-height: 90vh;
+    /* Limita altura para ativar rolagem */
+    overflow-y: auto;
+    /* Ativa barra de rolagem vertical */
+  }
+
+  .modal-footer {
+    position: sticky;
+    /* Fixa o rodapé no final da área visível */
+    bottom: 0;
+    /* Alinha com a parte inferior */
+    background-color: #fff;
+    /* Garante que o fundo do rodapé seja sólido */
+    z-index: 10;
+    /* Garante que fique acima do conteúdo */
+    border-top: 1px solid #dee2e6;
+    /* Opcional: linha divisória como padrão do Bootstrap */
+  }
+</style>
+
+<!-- Modal -->
+<div class="modal fade" id="avaliacaoModal" tabindex="-1" aria-labelledby="avaliacaoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header custom-model-avaliacao">
+        <h5 class="modal-title" id="avaliacaoModalLabel"> <i class="bi bi-journal-plus me-2"></i> <span
+            id="tituloModalAvaliacao">Cadastrar Avaliação</span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"
+          id="btnFechar"></button>
+      </div>
+
+      <form method="post" action="{% url 'cadastrar_avaliacao' aluno.id %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="d-flex justify-content-end mb-3">
+            <label for="data_avaliacao" class="form-label me-2"><i class="bi bi-calendar-event"></i> Data da
+              avaliação:</label>
+            <input type="date" id="data_avaliacao" name="data_avaliacao" class="form-control w-auto" required>
+          </div>
+
+          <!-- Perimetria -->
+          <div class="card mb-4">
+            <div class="card-header custom-model-avaliacao" data-bs-toggle="collapse"
+              data-bs-target="#modalCollapse-Perimetria" style="cursor: pointer;"><i
+                class="bi bi-universal-access me-2"></i> Perimetria</div>
+            <div class="card-body collapse show" id="modalCollapse-Perimetria">
+              <div class="row g-3">
+                <div class="col-md-3"><label for="peso">Peso (Kg)</label><input type="number" step="0.1" name="peso"
+                    id="peso" class="form-control" required></div>
+                <div class="col-md-3"><label for="altura">Altura (cm)</label><input type="number" step="0.1"
+                    name="altura" id="altura" class="form-control" required></div>
+                <div class="col-md-3"><label for="peitoral">Peitoral (cm)</label><input type="number" step="0.1"
+                    name="peitoral" id="peitoral" class="form-control" required></div>
+                <div class="col-md-3"><label for="cintura">Cintura (cm)</label><input type="number" step="0.1"
+                    name="cintura" id="cintura" class="form-control" required></div>
+                <div class="col-md-3"><label for="abdomen">Abdômen (cm)</label><input type="number" step="0.1"
+                    name="abdomen" id="abdomen" class="form-control" required></div>
+                <div class="col-md-3"><label for="quadril">Quadril (cm)</label><input type="number" step="0.1"
+                    name="quadril" id="quadril" class="form-control" required></div>
+                <div class="col-md-3"><label for="braco_direito">Braço Direito (cm)</label><input type="number"
+                    step="0.1" name="braco_direito" id="braco_direito" class="form-control" required></div>
+                <div class="col-md-3"><label for="braco_esquerdo">Braço Esquerdo (cm)</label><input type="number"
+                    step="0.1" name="braco_esquerdo" id="braco_esquerdo" class="form-control" required></div>
+                <div class="col-md-3"><label for="antebraco_direito">Antebraço Direito (cm)</label><input type="number"
+                    step="0.1" name="antebraco_direito" id="antebraco_direito" class="form-control" required></div>
+                <div class="col-md-3"><label for="antebraco_esquerdo">Antebraço Esquerdo (cm)</label><input
+                    type="number" step="0.1" name="antebraco_esquerdo" id="antebraco_esquerdo" class="form-control"
+                    required></div>
+                <div class="col-md-3"><label for="coxa_direita">Coxa Direita (cm)</label><input type="number" step="0.1"
+                    name="coxa_direita" id="coxa_direita" class="form-control" required></div>
+                <div class="col-md-3"><label for="coxa_esquerda">Coxa Esquerda (cm)</label><input type="number"
+                    step="0.1" name="coxa_esquerda" id="coxa_esquerda" class="form-control" required></div>
+                <div class="col-md-3"><label for="panturrilha_direita">Panturrilha Direita (cm)</label><input
+                    type="number" step="0.1" name="panturrilha_direita" id="panturrilha_direita" class="form-control"
+                    required></div>
+                <div class="col-md-3"><label for="panturrilha_esquerda">Panturrilha Esquerda (cm)</label><input
+                    type="number" step="0.1" name="panturrilha_esquerda" id="panturrilha_esquerda" class="form-control"
+                    required>
+                </div>
+                <div class="col-12 mt-3">
+                  <label for="obs">Observações</label>
+                  <textarea name="obs" id="obs" class="form-control" rows="3"
+                    placeholder="Digite observações sobre a avaliação..."></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dobras Cutâneas -->
+          <div class="card mb-4">
+            <div class="card-header custom-model-avaliacao" data-bs-toggle="collapse"
+              data-bs-target="#modalCollapse-DobrasCutaneas" style="cursor: pointer;"><i
+                class="bi bi-graph-up-arrow me-2"></i> Dobras Cutâneas
+            </div>
+            <div class="card-body collapse" id="modalCollapse-DobrasCutaneas">
+              <div class="row g-3">
+                <div class="col-md-3"><label for="dobra_peitoral">Peitoral (mm)</label><input type="number" step="0.1"
+                    name="dobra_peitoral" id="dobra_peitoral" class="form-control" required></div>
+                <div class="col-md-3"><label for="dobra_subescapular">Sub Escapular (mm)</label><input type="number"
+                    step="0.1" name="dobra_subescapular" id="dobra_subescapular" class="form-control" required></div>
+                <div class="col-md-3"><label for="dobra_axilar">Axilar Média (mm)</label><input type="number" step="0.1"
+                    name="dobra_axilar" id="dobra_axilar" class="form-control" required></div>
+                <div class="col-md-3"><label for="dobra_triceps">Tríceps (mm)</label><input type="number" step="0.1"
+                    name="dobra_triceps" id="dobra_triceps" class="form-control" required></div>
+                <div class="col-md-3"><label for="dobra_abdominal">Abdominal (mm)</label><input type="number" step="0.1"
+                    name="dobra_abdominal" id="dobra_abdominal" class="form-control" required></div>
+                <div class="col-md-3"><label for="dobra_suprailiaca">Supra Ilíaca (mm)</label><input type="number"
+                    step="0.1" name="dobra_suprailiaca" id="dobra_suprailiaca" class="form-control" required></div>
+                <div class="col-md-3"><label for="dobra_coxa">Coxa (mm)</label><input type="number" step="0.1"
+                    name="dobra_coxa" id="dobra_coxa" class="form-control" required></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Avaliação Postural -->
+          <div class="card mb-4">
+            <div class="card-header custom-model-avaliacao" data-bs-toggle="collapse"
+              data-bs-target="#modalCollapse-AvaliacaoPostural" style="cursor: pointer;"><i
+                class="bi bi-person-lines-fill"></i> Avaliação Postural
+            </div>
+            <div class="card-body collapse" id="modalCollapse-AvaliacaoPostural">
+              <div class="row g-3">
+                <div class="col-md-2"><label for="postural_pescoco">Pescoço</label><select name="postural_pescoco"
+                    id="postural_pescoco" class="form-select" required>
+                    <option value="">Selecione</option>
+                    <option value="pobre">Pobre</option>
+                    <option value="mediano">Mediano</option>
+                    <option value="bom">Bom</option>
+                    <option value="excelente">Excelente</option>
+                  </select></div>
+                <div class="col-md-2"><label for="postural_ombro">Ombro</label><select name="postural_ombro"
+                    id="postural_ombro" class="form-select" required>
+                    <option value="">Selecione</option>
+                    <option value="pobre">Pobre</option>
+                    <option value="mediano">Mediano</option>
+                    <option value="bom">Bom</option>
+                    <option value="excelente">Excelente</option>
+                  </select></div>
+                <div class="col-md-2"><label for="postural_quadril">Quadril</label><select name="postural_quadril"
+                    id="postural_quadril" class="form-select" required>
+                    <option value="">Selecione</option>
+                    <option value="pobre">Pobre</option>
+                    <option value="mediano">Mediano</option>
+                    <option value="bom">Bom</option>
+                    <option value="excelente">Excelente</option>
+                  </select></div>
+                <div class="col-md-2"><label for="postural_joelho">Joelho</label><select name="postural_joelho"
+                    id="postural_joelho" class="form-select" required>
+                    <option value="">Selecione</option>
+                    <option value="pobre">Pobre</option>
+                    <option value="mediano">Mediano</option>
+                    <option value="bom">Bom</option>
+                    <option value="excelente">Excelente</option>
+                  </select></div>
+                <div class="col-md-2"><label for="postural_tornozelo">Tornozelo</label><select name="postural_tornozelo"
+                    id="postural_tornozelo" class="form-select" required>
+                    <option value="">Selecione</option>
+                    <option value="pobre">Pobre</option>
+                    <option value="mediano">Mediano</option>
+                    <option value="bom">Bom</option>
+                    <option value="excelente">Excelente</option>
+                  </select></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Foto -->
+          <div class="card mb-4">
+            <div class="card-header custom-model-avaliacao" data-bs-toggle="collapse"
+              data-bs-target="#modalCollapse-foto" style="cursor: pointer;"><i class="bi bi-camera me-2"></i> Fotos da
+              Avaliação</div>
+            <div class="card-body collapse" id="modalCollapse-foto">
+              <div class="row g-3">
+                <input class="form-control" type="file" id="foto_avaliacao" name="foto">
+              </div>
+            </div>
+          </div>
+
+          <!-- Rodapé -->
+          <div class="modal-footer">
+            <button type="button" data-bs-dismiss="modal" id="btnCancelar" class="btn btn-outline-secondary"
+              data-bs-dismiss="modal"><i class="bi bi-x-circle me-1"></i> Cancelar</button>
+            <button type="button" class="icone-salvar btn btn-primary" id="btnSalvar"><i class="bi bi-save me-1"></i>
+              Salvar</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Script -->
+
+<script>
+
+  // TODO VALIDAR INFORMAÇÃO ANTES DE ENVIAR O FORMULÁRIO
+  
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const btnSalvar = document.getElementById('btnSalvar');
+    const form = document.querySelector('#avaliacaoModal form');
+
+    // ➕ Aqui: definir data de hoje
+    const dataInput = document.getElementById('data_avaliacao');
+    if (dataInput && !dataInput.value) {
+      const hoje = new Date();
+      const yyyy = hoje.getFullYear();
+      const mm = String(hoje.getMonth() + 1).padStart(2, '0');
+      const dd = String(hoje.getDate()).padStart(2, '0');
+      dataInput.value = `${yyyy}-${mm}-${dd}`;
+    }
+
+    if (btnSalvar && form) {
+      btnSalvar.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        // 1. Colapsar campos
+        const colapsadores = document.querySelectorAll('[data-bs-toggle="collapse"][data-bs-target]');
+        let algumFechado = false;
+
+        colapsadores.forEach(trigger => {
+          const targetSelector = trigger.getAttribute('data-bs-target');
+          const alvo = document.querySelector(targetSelector);
+
+          if (alvo && !alvo.classList.contains('show')) {
+            alvo.classList.add('show'); // abre manualmente
+            alvo.classList.remove('collapsing');
+            algumFechado = true;
+          }
+        });
+
+        // 2. Esperar animação se necessário
+        setTimeout(() => {
+          // 3. Corrigir vírgulas em inputs numéricos
+          const inputsNumericos = form.querySelectorAll('input[type="number"]');
+          inputsNumericos.forEach(input => {
+            input.value = input.value.replace(',', '.');
+          });
+
+          // 4. Validação manual de campos obrigatórios
+          const camposObrigatorios = form.querySelectorAll('[required]');
+          let formularioValido = true;
+          let primeiroInvalido = null;
+
+          camposObrigatorios.forEach(campo => {
+            const valor = campo.value.trim();
+
+            if (!valor) {
+              campo.classList.add('is-invalid');
+              campo.classList.remove('is-valid');
+              formularioValido = false;
+              if (!primeiroInvalido) {
+                primeiroInvalido = campo;
+              }
+            } else {
+              campo.classList.remove('is-invalid');
+              campo.classList.add('is-valid');
+            }
+
+            // 4.1. Ajuste automático da altura se digitado como 180 → 1.80
+            const campoAltura = document.getElementById('altura');
+            if (campoAltura) {
+              let valorAltura = campoAltura.value.trim().replace(',', '.');
+
+              // Se for um número inteiro com 3 dígitos, converte para decimal (ex: 180 → 1.80)
+              if (/^\d{3}$/.test(valorAltura)) {
+                const inteiro = valorAltura.slice(0, -2);
+                const decimal = valorAltura.slice(-2);
+                valorAltura = `${inteiro}.${decimal}`;
+                campoAltura.value = valorAltura;
+              }
+            }
+
+            // 4.2. Validação de todos os campos decimais com máximo 9 inteiros e 2 decimais
+            const camposDecimais = form.querySelectorAll('input[type="number"]');
+            for (const campo of camposDecimais) {
+              const valor = campo.value.trim().replace(',', '.');
+              if (valor) {
+                const partes = valor.split('.');
+                const parteInteira = partes[0] || '';
+                const parteDecimal = partes[1] || '';
+
+                if (parteInteira.length > 9 || parteDecimal.length > 2) {
+                  campo.classList.add('is-invalid');
+                  campo.classList.remove('is-valid');
+                  formularioValido = false;
+                  if (!primeiroInvalido) {
+                    primeiroInvalido = campo;
+                  }
+                }
+              }
+            }
+
+            // 5. Adiciona listener para corrigir ao digitar ou mudar
+            const evento = campo.tagName === 'SELECT' ? 'change' : 'input';
+            campo.addEventListener(evento, () => {
+              if (campo.value.trim()) {
+                campo.classList.remove('is-invalid');
+                campo.classList.add('is-valid');
+              } else {
+                campo.classList.remove('is-valid');
+                campo.classList.add('is-invalid');
+              }
+            });
+          });
+
+          // 6. Scroll até o primeiro erro
+          if (!formularioValido && primeiroInvalido) {
+            primeiroInvalido.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+          }
+
+          // 7. Envia o formulário
+          form.submit();
+        }, algumFechado ? 400 : 0);
+      });
+    }
+  });
+
+  // Limpar o modal ao fechar
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.querySelector('#avaliacaoModal form');
+    const modalEl = document.getElementById('avaliacaoModal'); // ✅ Defina aqui
+    const btnFechar = document.getElementById('btnFechar');
+    const btnCancelar = document.getElementById('btnCancelar');
+
+    function limparModal() {
+      document.getElementById('tituloModalAvaliacao').innerText = 'Cadastrar Avaliação';
+      document.getElementById('btnSalvar').innerHTML = '<i class="bi bi-save me-1"></i>Salvar';
+
+      if (form) {
+        form.reset();
+        form.querySelectorAll('.is-valid, .is-invalid').forEach(el =>
+          el.classList.remove('is-valid', 'is-invalid')
+        );
+        form.querySelectorAll('input[type="file"]').forEach(el => el.value = '');
+      }
+
+      const colapsaveis = form.querySelectorAll('.collapse');
+      colapsaveis.forEach(el => {
+        if (el.id !== 'modalCollapse-Perimetria') {
+          el.classList.remove('show');
+        } else {
+          el.classList.add('show');
+        }
+      });
+
+      const dataInput = document.getElementById('data_avaliacao');
+      if (dataInput) {
+        const hoje = new Date();
+        const yyyy = hoje.getFullYear();
+        const mm = String(hoje.getMonth() + 1).padStart(2, '0');
+        const dd = String(hoje.getDate()).padStart(2, '0');
+        dataInput.value = `${yyyy}-${mm}-${dd}`;
+      }
+    }
+
+    // ✅ Registra os eventos
+    if (btnCancelar) btnCancelar.addEventListener('click', limparModal);
+    if (btnFechar) btnFechar.addEventListener('click', limparModal);
+    if (modalEl) modalEl.addEventListener('hidden.bs.modal', limparModal); // Agora funciona
+  });
+
+  // Prenchendo o modal com os dados da avaliação para edição
+  function abrirModalEditarAvaliacao(avaliacao) {
+    document.getElementById('tituloModalAvaliacao').innerText = 'Editar Avaliação';
+    document.getElementById('btnSalvar').innerHTML = '<i class="bi bi-pencil-square me-1"></i> Editar';
+
+    const colapsadores = document.querySelectorAll('[data-bs-toggle="collapse"][data-bs-target]');
+    let algumFechado = false;
+
+    colapsadores.forEach(trigger => {
+      const targetSelector = trigger.getAttribute('data-bs-target');
+      const alvo = document.querySelector(targetSelector);
+
+      if (alvo && !alvo.classList.contains('show')) {
+        alvo.classList.add('show'); // abre manualmente
+        alvo.classList.remove('collapsing');
+        algumFechado = true;
+      }
+    });
+
+    const form = document.querySelector('#avaliacaoModal form');
+    form.action = `/avaliacoes/${avaliacao.id}/editar/`;
+
+    // Preenche os campos existentes no HTML
+    document.getElementById('data_avaliacao').value = avaliacao.data_avaliacao || '';
+    document.getElementById('peso').value = avaliacao.peso || '';
+    document.getElementById('altura').value = avaliacao.altura || '';
+    document.getElementById('peitoral').value = avaliacao.peitoral || '';
+    document.getElementById('cintura').value = avaliacao.cintura || '';
+    document.getElementById('abdomen').value = avaliacao.abdomen || '';
+    document.getElementById('quadril').value = avaliacao.quadril || '';
+    document.getElementById('braco_direito').value = avaliacao.braco_direito || '';
+    document.getElementById('braco_esquerdo').value = avaliacao.braco_esquerdo || '';
+    document.getElementById('antebraco_direito').value = avaliacao.antebraco_direito || '';
+    document.getElementById('antebraco_esquerdo').value = avaliacao.antebraco_esquerdo || '';
+    document.getElementById('coxa_direita').value = avaliacao.coxa_direita || '';
+    document.getElementById('coxa_esquerda').value = avaliacao.coxa_esquerda || '';
+    document.getElementById('panturrilha_direita').value = avaliacao.panturrilha_direita || '';
+    document.getElementById('panturrilha_esquerda').value = avaliacao.panturrilha_esquerda || '';
+    document.getElementById('dobra_peitoral').value = avaliacao.dobra_peitoral || '';
+    document.getElementById('dobra_subescapular').value = avaliacao.dobra_subescapular || '';
+    document.getElementById('dobra_axilar').value = avaliacao.dobra_axilar || '';
+    document.getElementById('dobra_triceps').value = avaliacao.dobra_triceps || '';
+    document.getElementById('dobra_abdominal').value = avaliacao.dobra_abdominal || '';
+    document.getElementById('dobra_suprailiaca').value = avaliacao.dobra_suprailiaca || '';
+    document.getElementById('dobra_coxa').value = avaliacao.dobra_coxa || '';
+    document.getElementById('postural_pescoco').value = avaliacao.postural_pescoco || '';
+    document.getElementById('postural_ombro').value = avaliacao.postural_ombro || '';
+    document.getElementById('postural_quadril').value = avaliacao.postural_quadril || '';
+    document.getElementById('postural_joelho').value = avaliacao.postural_joelho || '';
+    document.getElementById('postural_tornozelo').value = avaliacao.postural_tornozelo || '';
+    document.getElementById('obs').value = avaliacao.obs || '';
+
+    // Exibir o modal
+    const modal = new bootstrap.Modal(document.getElementById('avaliacaoModal'));
+    modal.show();
+  }
+
+  // Ajuste automático da altura ao digitar
+  document.addEventListener('DOMContentLoaded', function () {
+    const alturaInput = document.getElementById('altura');
+
+    if (alturaInput) {
+      alturaInput.addEventListener('input', function () {
+        let valor = alturaInput.value.trim();
+
+        // Substitui vírgula por ponto para normalizar
+        valor = valor.replace(',', '.');
+
+        // Se for inteiro com 3 dígitos, converte para formato decimal (ex: 180 → 1.80)
+        if (/^\d{3}$/.test(valor)) {
+          const inteiro = valor.slice(0, -2);
+          const decimal = valor.slice(-2);
+          alturaInput.value = `${inteiro}.${decimal}`;
+        }
+      });
+    }
+  });
+</script>

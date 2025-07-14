@@ -1,0 +1,167 @@
+<div class="tab-pane fade show active" id="dados" role="tabpanel">
+  <form method="post" class="needs-validation" novalidate id="form-infos-aluno" action="{% url 'atualizar_dados_complementares' aluno.id %}">
+    {% csrf_token %}
+
+    <div class="mb-4">
+      <!-- Informacoes Medicas -->
+      <h5><i class="bi bi-clipboard2-pulse"></i> Informações médicas</h5>
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label">Condições médicas</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-hospital"></i></span>
+            <input class="form-control editable-field-dados-pessoal" name="condicoes_medicas" value="{{ aluno.condicoes_medicas }}" required readonly>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Ciclo menstrual</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-droplet-half"></i></span>
+            <input class="form-control editable-field-dados-pessoal" name="ciclo_menstrual" value="{{ aluno.ciclo_menstrual }}" required readonly>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Medicamentos</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-capsule"></i></span>
+            <input class="form-control editable-field-dados-pessoal" name="medicamentos" value="{{ aluno.medicamentos }}" required readonly>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Lesões</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-bandaid"></i></span>
+            <input class="form-control editable-field-dados-pessoal" name="lesoes" value="{{ aluno.lesoes }}" required readonly>
+          </div>
+        </div>
+      </div>
+
+      <hr>
+
+      <!-- Estilo de vida -->
+      <h5><i class="bi bi-heart-pulse"></i> Estilo de vida</h5>
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label">Ocupacão</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-briefcase"></i></span>
+            <input class="form-control editable-field-dados-pessoal" name="ocupacao" value="{{ aluno.ocupacao }}" required readonly>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Estilo de vida</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-person-lines-fill"></i></span>
+            <input class="form-control editable-field-dados-pessoal" name="estilo_vida" value="{{ aluno.estilo_vida }}" required readonly>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Prática de esportes</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-trophy"></i></span>
+            <input class="form-control editable-field-dados-pessoal" name="pratica_esportes" value="{{ aluno.pratica_esportes }}" required readonly>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Exercícios físicos</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-bar-chart-line"></i></span>
+            <input class="form-control editable-field-dados-pessoal" name="pratica_exercicios" value="{{ aluno.pratica_exercicios }}" required readonly>
+          </div>
+        </div>
+      </div>
+
+      <hr>
+
+      <!-- Preferencias -->
+      <h5><i class="bi bi-stars"></i> Preferências</h5>
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label">Dias disponíveis</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-calendar-check"></i></span>
+            <input class="form-control editable-field-dados-pessoal" name="dias_disponiveis" value="{{ aluno.dias_disponiveis }}" required readonly>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Horário preferido</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-clock-history"></i></span>
+            <input class="form-control editable-field-dados-pessoal" name="horario_preferencia" value="{{ aluno.horario_preferencia }}" required readonly>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Exercício preferido</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-person-heart"></i></span>
+            <input class="form-control editable-field-dados-pessoal" name="exercicio_preferencia" value="{{ aluno.exercicio_preferencia }}" required readonly>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <label class="form-label">Informação adicional</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-chat-left-text"></i></span>
+            <textarea class="form-control editable-field-dados-pessoal" name="info_adicional" rows="3" required disabled>{{ aluno.info_adicional }}</textarea>
+          </div>
+        </div>
+      </div>
+
+      <hr>
+
+      <!-- Nível de Treinabilidade -->
+      <h5><i class="bi bi-graph-up-arrow"></i> Nível de Treinabilidade</h5>
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label">Tempo atual de treino</label>
+          <input class="form-control editable-field-dados-pessoal" name="tempo_atual_treino" value="{{ aluno.tempo_atual_treino }}" required readonly>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Tempo destreinado</label>
+          <input class="form-control editable-field-dados-pessoal" name="tempo_destreinado" value="{{ aluno.tempo_destreinado }}" required readonly>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Treino anterior</label>
+          <input class="form-control editable-field-dados-pessoal" name="tempo_treino_anterior" value="{{ aluno.tempo_treino_anterior }}" required readonly>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mb-3">
+        <button id="btnEditarInfos" type="button" class="btn btn-primary" onclick="habilitarInfos()">
+          <i class="bi bi-pencil"></i> Editar Campos
+        </button>
+        <button type="submit" class="btn btn-primary d-none" id="btnSalvarInfos">
+          <i class="bi bi-save"></i> Salvar
+        </button>
+        <button type="button" class="btn btn-secondary d-none" id="btnCancelarInfos" onclick="cancelarInfos()">
+          <i class="bi bi-x-circle"></i> Cancelar
+        </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  function habilitarInfos() {
+    document.querySelectorAll('#form-infos-aluno .editable-field-dados-pessoal').forEach(el => {
+      el.removeAttribute('readonly');
+      el.removeAttribute('disabled');
+    });
+
+    document.getElementById('btnEditarInfos').classList.add('d-none');
+    document.getElementById('btnSalvarInfos').classList.remove('d-none');
+    document.getElementById('btnCancelarInfos').classList.remove('d-none');
+  }
+
+  function cancelarInfos() {
+    document.querySelectorAll('#form-infos-aluno .editable-field-dados-pessoal').forEach(el => {
+      el.setAttribute('readonly', true);
+      el.setAttribute('disabled', true);
+    });
+
+    document.getElementById('btnEditarInfos').classList.remove('d-none');
+    document.getElementById('btnSalvarInfos').classList.add('d-none');
+    document.getElementById('btnCancelarInfos').classList.add('d-none');
+
+    window.location.reload();
+  }
+</script>

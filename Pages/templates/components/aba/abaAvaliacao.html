@@ -1,0 +1,153 @@
+
+<div class="tab-pane fade" id="avaliacao" role="tabpanel">
+
+  <!-- Cabeçalho do histórico de avaliações com botão para cadastrar nova -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0"><i class="bi bi-clipboard-data"></i> Histórico de Avaliações</h5>
+  </div>
+
+  <!-- Área dividida em tabela e gráfico -->
+  <div class="row">
+    <!-- Coluna da tabela (ocupa 8/12 do espaço) -->
+    <div class="col-md-8">
+      <table class="table table-bordered table-hover">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Data avaliação</th>
+            <th>Peso</th>
+            <th>Músculo</th>
+            <th>Gordura (%)</th>
+            <th>Gordura (Kg)</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in avaliacoes %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ a.data|date:"d/m/Y" }}</td>
+            <td>{{ a.peso }} kg</td>
+            <td>{{ a.massa_muscular|default:"-" }} Kg</td>
+            <td>{{ a.gordura_percentual|default:"-" }}%</td>
+            <td>{{ a.gorduraKg|default:"-" }}Kg</td>
+            <td>
+              <a href="#" class="text-primary">Visualizar</a> |
+              <a href="#" onclick="abrirModalEditarAvaliacaoPorId('{{ a.id }}')">Editar</a>
+
+
+            </td>
+          </tr>
+            <script type="application/json" id="avaliacao-{{ a.id }}">
+              {
+                "id": {{ a.id }},
+                "data_avaliacao": "{{ a.data|date:"Y-m-d" }}",
+                "peso": "{{ a.peso }}",
+                "altura": "{{ a.altura|default_if_none:"" }}",
+                "peitoral": "{{ a.peitoral|default_if_none:"" }}",
+                "cintura": "{{ a.cintura|default_if_none:"" }}",
+                "abdomen": "{{ a.abdomen|default_if_none:"" }}",
+                "quadril": "{{ a.quadril|default_if_none:"" }}",
+                "braco_direito": "{{ a.braco_direito|default_if_none:"" }}",
+                "braco_esquerdo": "{{ a.braco_esquerdo|default_if_none:"" }}",
+                "antebraco_direito": "{{ a.antebraco_direito|default_if_none:"" }}",
+                "antebraco_esquerdo": "{{ a.antebraco_esquerdo|default_if_none:"" }}",
+                "coxa_direita": "{{ a.coxa_direita|default_if_none:"" }}",
+                "coxa_esquerda": "{{ a.coxa_esquerda|default_if_none:"" }}",
+                "panturrilha_direita": "{{ a.panturrilha_direita|default_if_none:"" }}",
+                "panturrilha_esquerda": "{{ a.panturrilha_esquerda|default_if_none:"" }}",
+                "dobra_peitoral": "{{ a.dobra_peitoral|default_if_none:"" }}",
+                "dobra_subescapular": "{{ a.dobra_subescapular|default_if_none:"" }}",
+                "dobra_axilar": "{{ a.dobra_axilar|default_if_none:"" }}",
+                "dobra_triceps": "{{ a.dobra_triceps|default_if_none:"" }}",
+                "dobra_abdominal": "{{ a.dobra_abdominal|default_if_none:"" }}",
+                "dobra_suprailiaca": "{{ a.dobra_suprailiaca|default_if_none:"" }}",
+                "dobra_coxa": "{{ a.dobra_coxa|default_if_none:"" }}",
+                "postural_pescoco": "{{ a.postural_pescoco|default_if_none:"" }}",
+                "postural_ombro": "{{ a.postural_ombro|default_if_none:"" }}",
+                "postural_quadril": "{{ a.postural_quadril|default_if_none:"" }}",
+                "postural_joelho": "{{ a.postural_joelho|default_if_none:"" }}",
+                "postural_tornozelo": "{{ a.postural_tornozelo|default_if_none:"" }}",
+                "obs": "{{ a.observacoes|default_if_none:"" }}"
+              }
+              </script>
+
+
+          {% empty %}
+          <!-- Caso não haja avaliações -->
+          <tr>
+            <td colspan="6" class="text-center">Nenhuma avaliação registrada.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Coluna do gráfico (ocupa 4/12 do espaço) -->
+    <div class="col-md-4">
+      <h5 class="mb-3"><i class="bi bi-graph-up-arrow"></i> Gráfico de Avaliação</h5>
+      <canvas id="graficoAvaliacao" height="250" width="500"></canvas>
+    </div>
+  </div>
+
+  <!-- Script para gerar o gráfico ao abrir a aba Avaliação -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const dados = JSON.parse('{{ dados_grafico_json|safe }}');
+    if (!dados.length) return;
+
+    const labels = dados.map(item => item.data);
+    const dataPeso = dados.map(item => item.peso);
+    const dataMassa = dados.map(item => item.massa_muscular);
+    const gordura = dados.map(item => item.gordura_percentual);
+    const gorduraKg = dados.map(item => item.gorduraKg);
+
+    const ctx = document.getElementById('graficoAvaliacao').getContext('2d');
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Peso (kg)',
+            data: dataPeso,
+            fill: false,
+            tension: 0.1,
+          },
+          {
+            label: 'Massa muscular (kg)',
+            data: dataMassa,
+            fill: false,
+            tension: 0.1
+          },
+          {
+            label: 'Gordura (Kg)',
+            data: gorduraKg,
+            fill: false,
+            tension: 0.1,
+          },
+          
+        ] 
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom' } },
+        scales: {
+          x: { title: { display: true, text: 'Data' } },
+          y: { title: { display: true, text: 'Valor' } }
+        }
+      }
+    });
+  });
+</script>
+</div>
+
+<script>
+function abrirModalEditarAvaliacaoPorId(id) {
+  const script = document.getElementById(`avaliacao-${id}`);
+  if (!script) return;
+  const avaliacao = JSON.parse(script.textContent);
+  abrirModalEditarAvaliacao(avaliacao);
+}
+</script>

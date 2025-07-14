@@ -1,0 +1,47 @@
+<style> 
+  .bg-sistema-azul {
+      background-color: #0d47a1 !important;
+   }
+  .bg-sistema-vermelho {
+     background-color: #b21717 !important;
+  }
+   .bg-sistema-amarelho {
+      background-color: #f9a825 !important;
+ }
+</style>
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  {% if messages %}
+    {% for message in messages %}
+    <div class="toast align-items-center text-white border-0 mb-2
+        {% if 'success' in message.tags %} bg-sistema-azul {% elif 'error' in message.tags %} bg-sistema-vermelho {% elif 'warning' in message.tags %} bg-sistema-amarelho {% endif %}">
+        <div class="toast-header">
+          {% if "success" in message.tags %}
+            <i class="bi bi-check-circle-fill icon-cor-sistema me-2"></i>
+          {% elif "error" in message.tags %}
+            <i class="bi bi-x-circle-fill text-danger me-2"></i>
+          {% elif "warning" in message.tags %}
+            <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+          {% else %}
+            <i class="bi bi-info-circle-fill text-info me-2"></i>
+          {% endif %}
+          <strong class="me-auto">SubMax - Aviso</strong>
+          <small class="text-muted"></small>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Fechar"></button>
+        </div>
+        <div class="toast-body">
+          {{ message }}
+        </div>
+      </div>
+    {% endfor %}
+  {% endif %}
+</div>
+
+<script>
+  // Ativa todos os toasts com pequeno atraso entre eles
+  document.querySelectorAll('.toast').forEach((toastEl, i) => {
+    const t = new bootstrap.Toast(toastEl);
+    setTimeout(() => t.show(), i * 500); // Exibe um por um
+  });
+</script>
+
+

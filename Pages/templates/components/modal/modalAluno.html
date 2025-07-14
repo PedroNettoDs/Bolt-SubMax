@@ -1,0 +1,374 @@
+<style>
+  .custom-model-avaliacao {
+    background-color: #0d47a1;
+    color: #fff !important;
+  }
+
+  .custom-icone {
+    color: #fff !important;
+  }
+
+  .icone-salvar {
+    background-color: #0d47a1;
+  }
+
+  .modal-body {
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-footer {
+    position: sticky;
+    bottom: 0;
+    background-color: #fff;
+    z-index: 10;
+    border-top: 1px solid #dee2e6;
+  }
+</style>
+
+<!-- Estrutura principal do modal Bootstrap -->
+<div class="modal fade" id="alunoModal" tabindex="-1" aria-labelledby="alunoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header custom-model-avaliacao">
+        <h5 class="modal-title" id="alunoModalLabel">
+          <i class="bi bi-person-plus"></i> Cadastro De Aluno
+        </h5>
+        <button type="button" id="btnVoltar-x" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Botões de seleção de cadastro -->
+        <div id="opcaoCadastro" class="card-header text-center mb-4">
+          <p>Como deseja cadastrar o aluno?</p>
+          <div class="card-header d-flex justify-content-center gap-3">
+            <button id="btnManual" class="btn btn-primary">Manual</button>
+            <button id="btnExcel" class="btn btn-outline-secondary">Importar Excel</button>
+          </div>
+        </div>
+
+        <div id="btnVoltarWrapper" class="d-flex justify-content-end mb-3 d-none" style="display: none;">
+          <button id="btnVoltar" class="btn btn-primary">
+            <i class="bi bi-arrow-left"></i> Voltar
+          </button>
+        </div>
+
+
+        <!-- Formulário Manual -->
+        <form id="formManual" method="POST" action="/cadastrar_aluno/" style="display:none;">
+          {% csrf_token %}
+
+          <!-- Dados pessoais -->
+          <div class="card mb-4">
+            <div class="card-header custom-model-avaliacao" data-bs-toggle="collapse"
+              data-bs-target="#modalCollapse-dadospessoal" style="cursor: pointer;"><i
+                class="bi bi-person-vcard me-2"></i> Dados Pessoais</div>
+            <div class="card-body collapse show" id="modalCollapse-dadospessoal">
+              <div class="row g-3 mb-3">
+                <div class="col-md-4"><label for="nome">Nome</label><input class="form-control" name="nome" placeholder=""></div>
+                <div class="col-md-4"><label for="nome">Data De Nascimento</label><input type="date" name="data_nascimento" class="form-control editable-field" value="{{ aluno.data_nascimento|date:'Y-m-d' }}" placeholder=""></div>
+                <div class="col-md-4">
+                  <label for="nome">Sexo</label>
+                  <select class="form-select" name="sexo">
+                    <option>Masculino</option>
+                    <option>Feminino</option>
+                    <option>Outro</option>
+                  </select>
+                </div>
+                <div class="col-md-6"><label for="telefone">Telefone</label><input class="form-control" name="telefone" placeholder=""></div>
+                <div class="col-md-6"><label for="email">E-mail</label><input class="form-control" name="email" placeholder=""></div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="plano">Plano</label>
+                    <select name="plano" id="plano" class="form-control">
+                        {% for plano in planos %}
+                            <option value="{{ plano.id }}">{{ plano.nome }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+
+          <!-- Informações médicas -->
+          <div class="card mb-4">
+            <div class="card-header custom-model-avaliacao" data-bs-toggle="collapse"
+              data-bs-target="#modalCollapse-infomedica" style="cursor: pointer;">
+              <i class="bi bi-clipboard-heart"></i>  Informações médicas
+            </div>
+            <div class="card-body collapse" id="modalCollapse-infomedica">
+              <div class="row g-3 mb-3">
+                <div class="col-md-6"><label for="Condições médicas pré-existentes">Condições médicas pré-existentes</label><input class="form-control" name="condicoes_medicas" placeholder=""></div>
+                <div class="col-md-6"><label for="Ciclo menstrual">Ciclo menstrual</label><input class="form-control" name="ciclo_menstrual" placeholder=""></div>
+                <div class="col-md-6"><label for="Ciclo menstrual">Tomando medicamentos</label><input class="form-control" name="medicamentos" placeholder=""></div>
+                <div class="col-md-6"><label for="Ciclo menstrual">Lesão/Cirurgia</label><input class="form-control" name="lesoes" placeholder=""></div>
+              </div>
+            </div>
+          </div>
+          <h5>
+            
+          </h5>
+          
+
+          <!-- Estilo de vida -->
+          <div class="card mb-4">
+            <div class="card-header custom-model-avaliacao" data-bs-toggle="collapse"
+              data-bs-target="#modalCollapse-estulovida" style="cursor: pointer;">
+              <i class="bi bi-bicycle"></i>  Estilo de vida
+            </div>
+            <div class="card-body collapse" id="modalCollapse-estulovida">
+              <div class="row g-3 mb-3">
+                <div class="col-md-6"><label for="Ocupação profissional">Ocupação profissional</label><input class="form-control" name="ocupacao" placeholder=""></div>
+                <div class="col-md-6"><label for="Estilo de vida">Estilo de vida</label><input class="form-control" name="estilo_vida" placeholder=""></div>
+                <div class="col-md-6"><label for="Praticante de esporte">Praticante de esporte</label><input class="form-control" name="pratica_esportes" placeholder=""></div>
+                <div class="col-md-6"><label for="Praticante de exercício físico">Praticante de exercício físico</label><input class="form-control" name="pratica_exercicios" placeholder=""></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preferência -->
+          <div class="card mb-4">
+            <div class="card-header custom-model-avaliacao" data-bs-toggle="collapse"
+              data-bs-target="#modalCollapse-preferencia" style="cursor: pointer;">
+              <i class="bi bi-stars"></i>  Preferência
+            </div>
+            <div class="card-body collapse" id="modalCollapse-preferencia">
+              <div class="row g-3 mb-3">
+                <div class="col-md-6"><label for="Dias disponíveis">Dias disponíveis</label><input class="form-control" name="dias_disponiveis" placeholder=""></div>
+                <div class="col-md-6"><label for="Preferência de horário">Preferência de horário</label><input class="form-control" name="horario_preferencia" placeholder=""></div>
+                <div class="col-md-6"><label for="Preferência de exercício">Preferência de exercício</label><input class="form-control" name="exercicio_preferencia" placeholder=""></div>
+                <div class="col-md-6"><label for="Informação adicional">Informação adicional</label><input class="form-control" name="info_adicional" placeholder=""></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Nível de treinabilidade -->
+          <div class="card mb-4">
+            <div class="card-header custom-model-avaliacao" data-bs-toggle="collapse"
+              data-bs-target="#modalCollapse-niveltrei" style="cursor: pointer;">
+              <i class="bi bi-graph-up"></i> Nível de treinabilidade
+            </div>
+            <div class="card-body collapse" id="modalCollapse-niveltrei">
+              <div class="row g-3 mb-3">
+                <div class="col-md-4"><label for="Tempo atual de treinamento">Tempo atual de treinamento</label><input class="form-control" name="tempo_atual_treino" placeholder=""></div>
+                <div class="col-md-4"><label for="Tempo destreinado">Tempo destreinado</label><input class="form-control" name="tempo_destreinado" placeholder=""></div>
+                <div class="col-md-4"><label for="Tempo de treinamento anterior">Tempo de treinamento anterior</label><input class="form-control" name="tempo_treino_anterior" placeholder=""></div>
+              </div>
+            </div>
+          </div>
+          
+
+          <!-- Botões -->
+          <div class="d-flex justify-content-end">
+            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+          </div>
+        </form>
+
+        <!-- Formulário para upload de Excel (também oculto no início) -->
+        <form id="formExcel" method="POST" action="{% url 'importar_excel' %}" enctype="multipart/form-data" style="display:none;">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="arquivoExcel" class="form-label">Selecionar arquivo Excel</label>
+            <input type="file" class="form-control" name="arquivoExcel" id="arquivoExcel" accept=".xlsx">
+          </div>
+          <div class="d-flex justify-content-end">
+            <button type="button" id="btncancelarAlunoNovo" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" id="btnSalvarAlunoNovo" class="btn btn-primary">Importar</button>
+          </div>
+        </form>
+        <!-- fim componente: Modal Cadastrar Aluno -->
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- Script para alternar entre formulário manual e Excel -->
+<script>
+  const btnManual = document.getElementById("btnManual");
+  const btnExcel = document.getElementById("btnExcel");
+  const btnVoltar = document.getElementById("btnVoltar");
+  const opcaoCadastro = document.getElementById("opcaoCadastro");
+  const btnVoltarWrapper = document.getElementById("btnVoltarWrapper");
+  const formManual = document.getElementById("formManual");
+  const formExcel = document.getElementById("formExcel");
+
+  function mostrarInicial() {
+    opcaoCadastro.style.display = "block";
+    btnVoltarWrapper.style.display = "none";
+    formManual.style.display = "none";
+    formExcel.style.display = "none";
+    document.getElementById('btnVoltarWrapper').classList.add('d-none');
+  }
+
+  btnManual.addEventListener("click", () => {
+    opcaoCadastro.style.display = "none";
+    btnVoltarWrapper.style.display = "flex";
+    formManual.style.display = "block";
+    formExcel.style.display = "none";
+    document.getElementById('btnVoltarWrapper').classList.remove('d-none');
+  });
+
+  btnExcel.addEventListener("click", () => {
+    opcaoCadastro.style.display = "none";
+    btnVoltarWrapper.style.display = "flex";
+    formExcel.style.display = "block";
+    formManual.style.display = "none";
+    document.getElementById('btnVoltarWrapper').classList.remove('d-none');
+  });
+
+  btnVoltar.addEventListener("click", () => {
+    mostrarInicial();
+  });
+
+  // Script para validação do formulário manual
+  document.addEventListener('DOMContentLoaded', function () {
+    const formManual = document.getElementById('formManual');
+    const btnSalvar = formManual.querySelector('button[type="submit"]');
+
+    if (btnSalvarAlunoNovo && formManual) {
+      btnSalvar.addEventListener('click', function (e) {
+        e.preventDefault();
+
+
+         //Expandir todas as seções antes de validar
+        const colapsaveis = formManual.querySelectorAll('.collapse');
+        colapsaveis.forEach(el => el.classList.add('show'));
+
+        const camposObrigatorios = [
+          // Dados Pessoais
+          'nome',
+          'data_nascimento',
+          'sexo',
+          'telefone',
+          'email',
+          'plano',
+
+          // Informações médicas
+          'condicoes_medicas',
+          'ciclo_menstrual',
+          'medicamentos',
+          'lesoes',
+
+          // Estilo de vida
+          'ocupacao',
+          'estilo_vida',
+          'pratica_esportes',
+          'pratica_exercicios',
+
+          // Preferência
+          'dias_disponiveis',
+          'horario_preferencia',
+          'exercicio_preferencia',
+          'info_adicional',
+
+          // Nível de treinabilidade
+          'tempo_atual_treino',
+          'tempo_destreinado',
+          'tempo_treino_anterior',
+        ];
+
+
+        let formularioValido = true;
+        let primeiroInvalido = null;
+
+        camposObrigatorios.forEach(nomeCampo => {
+          const campo = formManual.querySelector(`[name="${nomeCampo}"]`);
+          if (campo) {
+            const valor = campo.value.trim();
+            if (!valor) {
+              campo.classList.add('is-invalid');
+              campo.classList.remove('is-valid');
+              formularioValido = false;
+              if (!primeiroInvalido) {
+                primeiroInvalido = campo;
+              }
+            } else {
+              campo.classList.remove('is-invalid');
+              campo.classList.add('is-valid');
+            }
+
+            // Validação de email
+            const emailField = document.querySelector('input[name="email"]');
+            const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+            if (!emailRegex.test(emailField.value)) {
+              emailField.classList.add('is-invalid');
+            } else {
+              emailField.classList.remove('is-invalid');
+            }
+
+            const evento = campo.tagName === 'SELECT' ? 'change' : 'input';
+            campo.addEventListener(evento, () => {
+              if (campo.value.trim()) {
+                campo.classList.remove('is-invalid');
+                campo.classList.add('is-valid');
+              } else {
+                campo.classList.remove('is-valid');
+                campo.classList.add('is-invalid');
+              }
+            });
+          }
+        });
+
+        if (!formularioValido && primeiroInvalido) {
+          primeiroInvalido.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+
+        formManual.submit();
+      });
+    }
+  });
+
+  //cancelar 
+  document.addEventListener('DOMContentLoaded', function () {
+    const alunoModal = document.getElementById('alunoModal');
+    const formManual = document.getElementById('formManual');
+    const formExcel = document.getElementById('formExcel');
+    const btnVoltarx = document.getElementById('btnVoltar-x');
+    const btnCancelarManual = formManual.querySelector('button[data-bs-dismiss="modal"]');
+    const btnCancelarExcel = document.getElementById('btncancelarAlunoNovo');
+
+    function limparModal() {
+      mostrarInicial()
+      
+      if (formManual) {
+        formManual.reset();
+
+        const inputs = formManual.querySelectorAll('.is-valid, .is-invalid');
+        inputs.forEach(input => input.classList.remove('is-valid', 'is-invalid'));
+
+        // Fecha todas as seções
+        const colapsaveis = formManual.querySelectorAll('.collapse');
+        colapsaveis.forEach(el => el.classList.remove('show'));
+      }
+
+      if (formExcel) {
+        formExcel.reset();
+      }
+
+      // Oculta formulários
+      formManual.style.display = "none";
+      formExcel.style.display = "none";
+    }
+
+    if (btnCancelarManual) btnCancelarManual.addEventListener('click', limparModal);
+    if (btnCancelarExcel) btnCancelarExcel.addEventListener('click', limparModal);
+    if (btnVoltarx) btnVoltarx.addEventListener('click', limparModal);
+
+    // Quando o modal for ABERTO, abre só "Dados Pessoais"
+    alunoModal.addEventListener('shown.bs.modal', function () {
+      const colapsaveis = alunoModal.querySelectorAll('.collapse');
+      colapsaveis.forEach(el => el.classList.remove('show'));
+
+      const dadosPessoais = document.getElementById('modalCollapse-dadospessoal');
+      if (dadosPessoais) dadosPessoais.classList.add('show');
+    });
+  });
+</script>
+

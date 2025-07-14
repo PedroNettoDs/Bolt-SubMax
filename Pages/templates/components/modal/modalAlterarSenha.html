@@ -1,0 +1,176 @@
+{% load static %}
+<div class="modal fade" id="modalAlterarSenha" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalAlterarSenhaLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="formAlterarSenha">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalAlterarSenhaLabel">
+            <i class="bi bi-shield-lock-fill"></i> Alterar Senha
+          </h5>
+        </div>
+        <div class="modal-body">
+          <div id="senha-msg-retorno"></div>
+
+          <div class="mb-3">
+            <label for="senha_atual" class="form-label">Senha Atual</label>
+            <input type="password" class="form-control" id="senha_atual" name="senha_atual">
+          </div>
+
+          <div class="mb-3">
+            <label for="nova_senha" class="form-label">Nova Senha</label>
+            <input type="password" class="form-control" id="nova_senha" name="nova_senha">
+          </div>
+
+          <div class="mb-3">
+            <label for="confirmar_senha" class="form-label">Confirmar Nova Senha</label>
+            <input type="password" class="form-control" id="confirmar_senha" name="confirmar_senha">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" id="btn-cancelar-senha" style="display: none;">
+            <i class="bi bi-x-circle me-1"></i> Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save"></i> Salvar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function validarFormularioSenha() {
+  let valido = true;
+  const senhaAtual = document.getElementById("senha_atual");
+  const novaSenha = document.getElementById("nova_senha");
+  const confirmarSenha = document.getElementById("confirmar_senha");
+
+  // Limpa classes
+  [senhaAtual, novaSenha, confirmarSenha].forEach(input => {
+    input.classList.remove("is-invalid", "is-valid");
+  });
+
+  // Valida preenchimento
+  if (!senhaAtual.value.trim()) {
+    senhaAtual.classList.add("is-invalid");
+    valido = false;
+  } else {
+    senhaAtual.classList.add("is-valid");
+  }
+
+  const novaValida = novaSenha.value.length >= 8 &&
+                     /[A-Z]/.test(novaSenha.value) &&
+                     /[a-z]/.test(novaSenha.value) &&
+                     /[0-9]/.test(novaSenha.value);
+
+  if (!novaValida) {
+    novaSenha.classList.add("is-invalid");
+    valido = false;
+  } else {
+    novaSenha.classList.add("is-valid");
+  }
+
+  if (novaSenha.value !== confirmarSenha.value || !confirmarSenha.value) {
+    confirmarSenha.classList.add("is-invalid");
+    valido = false;
+  } else {
+    confirmarSenha.classList.add("is-valid");
+  }
+
+  return valido;
+}
+
+document.getElementById("formAlterarSenha").addEventListener("submit", async function(e) {
+  e.preventDefault();
+  const msgBox = document.getElementById("senha-msg-retorno");
+  msgBox.innerHTML = "";
+
+  // Validação local antes de enviar
+  if (!validarFormularioSenha()) {
+    const alert = document.createElement("div");
+    alert.className = "alert alert-danger";
+    alert.innerText = "Corrija os campos destacados antes de continuar.";
+    msgBox.appendChild(alert);
+    return;
+  }
+
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  const senha_atual = document.getElementById("senha_atual").value;
+  const nova_senha = document.getElementById("nova_senha").value;
+  const confirmar_senha = document.getElementById("confirmar_senha").value;
+
+  const response = await fetch("{% url 'alterar_senha_primeiro_acesso' %}", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": csrfToken,
+      "X-Requested-With": "XMLHttpRequest"
+    },
+    body: JSON.stringify({ senha_atual, nova_senha, confirmar_senha })
+  });
+
+  const data = await response.json();
+
+  if (!data.success) {
+    const alert = document.createElement("div");
+    alert.className = "alert alert-danger";
+    alert.innerText = data.message;
+    msgBox.innerHTML = "";
+    msgBox.appendChild(alert);
+
+    // Marcar campo com erro se aplicável
+    if (data.message.includes("atual")) {
+      document.getElementById("senha_atual").classList.add("is-invalid");
+    }
+    return;
+  }
+
+  const alert = document.createElement("div");
+  alert.className = "alert alert-success";
+  alert.innerText = data.message;
+  msgBox.innerHTML = "";
+  msgBox.appendChild(alert);
+
+  const form = document.getElementById("formAlterarSenha");
+  if (form) {
+    form.reset();
+    form.querySelectorAll('.is-valid, .is-invalid').forEach(el =>
+      el.classList.remove('is-valid', 'is-invalid')
+    );
+    form.querySelectorAll('input[type="file"]').forEach(el => el.value = '');
+  }
+
+  setTimeout(() => {
+    location.reload();
+  }, 1500);
+});
+
+// Torna campos dinâmicos: verde ao corrigir
+document.querySelectorAll('#formAlterarSenha input').forEach(input => {
+  input.addEventListener("input", () => {
+    input.classList.remove("is-invalid");
+    if (input.value.length > 0) {
+      input.classList.add("is-valid");
+    } else {
+      input.classList.remove("is-valid");
+    }
+  });
+});
+
+document.getElementById("btn-cancelar-senha").addEventListener("click", () => {
+  const form = document.getElementById("formAlterarSenha");
+  if (form) {
+    form.reset();
+    form.querySelectorAll('.is-valid, .is-invalid').forEach(el =>
+      el.classList.remove('is-valid', 'is-invalid')
+    );
+    form.querySelectorAll('input[type="file"]').forEach(el => el.value = '');
+  }
+
+  // Limpa alertas do topo
+  const msgBox = document.getElementById("senha-msg-retorno");
+  if (msgBox) msgBox.innerHTML = "";
+});
+</script>

@@ -1,0 +1,336 @@
+{% load static %}
+<!-- início componente: sidebar -->
+
+<!-- início links de estilo -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<!-- fim links de estilo -->
+
+<!-- início estilos da sidebar -->
+<style>
+  /* início estilo principal da sidebar */
+  .sidebar {
+    height: 100vh;
+    background-color: #fff;
+    border-right: 1px solid #e5e7eb;
+    transition: all 0.3s ease;
+    overflow-x: hidden;
+    width: 250px;
+    position: fixed;
+    z-index: 1030;
+  }
+
+  /* início estado collapsed: quando recolhida, fica com 80px */
+  .sidebar.collapsed {
+    width: 80px;
+  }
+
+  /* início estilo dos links de navegação */
+  .sidebar .nav-link {
+    color: #111827;
+    font-weight: 500;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: 0.2s;
+    border-radius: 12px;
+  }
+
+  .sidebar .nav-link:hover,
+  .sidebar .nav-link.active {
+    background-color: #eef2ff;
+    color: #0d47a1;
+  }
+
+  /* fim estilo dos links de navegação */
+
+  /* início ícones nos links */
+  .sidebar .nav-link i {
+    font-size: 1.2rem;
+    width: 24px;
+    text-align: center;
+  }
+
+  .sidebar.collapsed .nav-link {
+    justify-content: center;
+  }
+
+  /* fim ícones nos links */
+
+  /* início transições de texto e itens extras ao recolher */
+  .sidebar .sidebar-text,
+  .sidebar .user-info span,
+  .sidebar .footer-controls .night-toggle,
+  .sidebar .footer-controls span {
+    transition: 0.3s;
+    display: inline-block;
+  }
+
+  .sidebar.collapsed .sidebar-text,
+  .sidebar.collapsed .user-info span,
+  .sidebar.collapsed .footer-controls .night-toggle {
+    display: none !important;
+  }
+
+  .sidebar.collapsed .submenu {
+    display: none !important;
+  }
+
+  /* fim transições de texto e itens extras */
+
+  /* início botão toggle: botão para recolher/expandir sidebar */
+  .toggle-btn {
+    font-size: 1.5rem;
+    background: none;
+    border: none;
+    color: #0d47a1;
+    padding: 10px 20px;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .sidebar.collapsed .toggle-btn {
+    text-align: center;
+    width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* fim botão toggle */
+
+  /* início user-info: avatar e nome do usuário */
+  .user-info {
+    padding: 0 0 10px;
+    text-align: center;
+  }
+
+  .user-info img {
+    width: 35px;
+    height: 35px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 8px;
+    display: block;
+    margin: 0 auto 8px;
+  }
+
+  /* fim user-info */
+
+  /* início submenu: itens adicionais dentro de um menu */
+  .submenu {
+    display: none;
+    padding-left: 36px;
+  }
+
+  .submenu.show {
+    display: block;
+  }
+
+  /* fim submenu */
+
+  /* início footer da sidebar: parte inferior com logout e nightmode */
+  .sidebar-footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    border-top: 1px solid #e5e7eb;
+    padding: 16px;
+  }
+
+  /* fim footer da sidebar */
+
+  /* início cursor para switches como nightmode */
+  .form-check-input {
+    cursor: pointer;
+  }
+
+  /* fim cursor para switches */
+
+  /* início media query para telas menores: recolhe automaticamente */
+  @media (max-width: 768px) {
+    .sidebar.auto-collapse {
+      width: 80px;
+    }
+
+    .sidebar.auto-collapse .sidebar-text,
+    .sidebar.auto-collapse .user-info span,
+    .sidebar.auto-collapse .footer-controls .night-toggle,
+    .sidebar.auto-collapse .submenu {
+      display: none !important;
+    }
+
+    .sidebar.auto-collapse .nav-link {
+      justify-content: center;
+    }
+
+    .sidebar.auto-collapse .toggle-btn {
+      text-align: center;
+      width: 100%;
+      padding: 0;
+    }
+  }
+
+  /* fim media query para telas menores */
+</style>
+<!-- fim estilos da sidebar -->
+
+<!-- início HTML da sidebar -->
+<div id="sidebar" class="sidebar d-flex flex-column px-3">
+
+  <!-- botão para recolher/expandir sidebar -->
+  <button class="toggle-btn align-self-start" id="sidebarToggle">
+    <i class="bi bi-list"></i>
+  </button>
+
+  <!-- seção com avatar e nome do usuário -->
+  <div class="user-info">
+    <img src="../../../static/img/user.png" alt="Avatar">
+    <span class="fw-bold text-uppercase">{{ request.user.first_name }}</span><br>
+    <i id="emojiSideBar" class="bi "></i> <span class="text-muted small" id="saudacao"></span>
+  </div>
+
+  <!-- início navegação principal -->
+  <ul class="nav flex-column mt-3">
+    <!-- link para Home -->
+    <li class="nav-item pb-1">
+      <a href="/home/" class="nav-link {% if request.path == '/home/' %}active{% endif %}">
+        <i class="bi bi-house-door"></i>
+        <span class="sidebar-text">Home</span>
+      </a>
+    </li>
+    <!-- link para Treinos -->
+    <li class="nav-item pb-1">
+      <a href="{% url 'alunos' %}" class="nav-link {% if request.resolver_match.url_name == 'alunos' %}active{% endif %}">
+        <i class="bi bi-people"></i>
+        <span class="sidebar-text">Alunos</span>
+      </a>
+    </li>
+    <!-- link para Treinos -->
+    <li class="nav-item pb-1">
+      <a href="{% url 'treinos' %}" class="nav-link {% if request.resolver_match.url_name == 'treinos' %}active{% endif %}">
+        <i class="bi bi-bar-chart"></i>
+        <span class="sidebar-text">Treinos</span>
+      </a>
+    </li>
+    <!-- link para Alunos com submenu -->
+    <li class="nav-item pb-1">
+      <a href="#" class="nav-link d-flex justify-content-between align-items-center {% if request.resolver_match.url_name in 'usuarios_listagem configuracao_outro' %}active{% endif %}" onclick="toggleSubmenu(event)">
+        <div><i class="bi bi-gear"></i> <span class="sidebar-text">Configuração</span></div>
+        <i class="bi bi-chevron-down sidebar-text"></i>
+      </a>
+      <div class="submenu mt-1 {% if request.resolver_match.url_name in 'usuarios_listagem configuracao_outro' %}show{% endif %}">
+        <a href="{% url 'usuarios_listagem' %}" class="nav-link" href="#">
+          <i class="bi bi-person-plus"></i> <span>Usuário</span>
+        </a>
+        <a href="#" class="nav-link" href="#">
+          <i class="bi bi-building"></i> <span>Organização</span>
+        </a>
+        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#modalAlterarSenha">
+          <i class="bi bi-key"></i> Alterar Senha
+        </a>
+      </div>
+    </li>
+  </ul>
+  
+  <!-- fim navegação principal -->
+
+  <!-- início footer da sidebar com logout e nightmode -->
+  <div class="sidebar-footer d-flex flex-column align-items-center">
+    <a href="{% url 'logout' %}" class="nav-link text-danger mb-2 w-100 text-center">
+      <i class="bi bi-box-arrow-right"></i>
+      <span class="sidebar-text">Log Out</span>
+    </a>  
+  </div>
+  <!-- fim footer da sidebar -->
+
+</div>
+<!-- fim HTML da sidebar -->
+
+<!-- início scripts da sidebar -->
+<script>
+  // captura o elemento sidebar
+  const sidebar = document.getElementById('sidebar');
+
+  // função para alternar sidebar recolhida/expandida
+  function toggleSidebar() {
+    sidebar.classList.toggle('collapsed');
+    sidebar.classList.remove('auto-collapse'); // remove auto-collapse quando clicado
+  }
+
+  // função para mostrar/esconder submenu de alunos
+  function toggleSubmenu(event) {
+    event.preventDefault();
+    const submenu = event.target.closest('li').querySelector('.submenu');
+    if (!sidebar.classList.contains('collapsed')) {
+      submenu.classList.toggle('show');
+    }
+  }
+
+  // função para recolher sidebar automaticamente em telas pequenas
+  function handleResize() {
+    if (window.innerWidth < 768) {
+      sidebar.classList.add('auto-collapse');
+    } else {
+      sidebar.classList.remove('auto-collapse');
+    }
+  }
+
+  // ativa o ajuste automático ao carregar a página e ao redimensionar
+  window.addEventListener('resize', handleResize);
+  window.addEventListener('DOMContentLoaded', handleResize);
+
+  //Função para definir saudação dinâmica
+  function saudacaoDinamica() {
+    const agora = new Date();
+    const hora = agora.getHours();
+    const emojiSideBar = document.getElementById('emojiSideBar');
+    let saudacao = "";
+    removerIconesidebar();
+
+    if (hora >= 6 && hora < 12) {
+      saudacao = "Bom Dia";
+      emojiSideBar.classList.add('bi-brightness-alt-high-fill');
+    } else if (hora >= 12 && hora < 18) { 
+      saudacao = "Boa Tarde";
+      emojiSideBar.classList.add('bi-brightness-high-fill');
+    } else {
+      saudacao = "Boa Noite";
+      emojiSideBar.classList.add('bi-moon-stars-fill');
+    }
+
+    const el = document.getElementById("saudacao");
+    if (el) {
+      el.textContent = saudacao;
+    }
+  }
+
+  function removerIconesidebar() {
+    const emojiSideBar = document.getElementById('emojiSideBar');
+    if (emojiSideBar) {
+      emojiSideBar.classList.remove('bi-brightness-alt-high-fill', 'bi-brightness-high-fill', 'bi-moon-stars-fill');
+    }
+  }
+
+  // Chamada ao carregar a página
+  document.addEventListener("DOMContentLoaded", saudacaoDinamica);
+
+
+  // chamar alterador de senha 
+  document.addEventListener("DOMContentLoaded", function () {
+    const linkAlterarSenha = document.querySelector('[data-bs-target="#modalAlterarSenha"]');
+    if (linkAlterarSenha) {
+      linkAlterarSenha.addEventListener("click", function () {
+        const modalEl = document.getElementById("modalAlterarSenha");
+        const btnCancelar = document.getElementById("btn-cancelar-senha");
+
+        // Libera o modal para ser fechado
+        modalEl.removeAttribute("data-bs-backdrop");
+        modalEl.removeAttribute("data-bs-keyboard");
+
+        // Mostra botão "Cancelar"
+        if (btnCancelar) btnCancelar.style.display = "inline-block";
+      });
+    }
+  });
+</script>

@@ -1,0 +1,380 @@
+<div class="tab-pane fade" id="treinos" role="tabpanel">
+
+  <div class="row g-4">
+
+    <!-- coluna esquerda: cabeçalho + tabela de exercícios -->
+    <div class="col-lg-8">
+      <div class="card">
+
+        <!-- cabeçalho com título e dropdown para selecionar rotina -->
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+          <span>Treinos</span>
+          {% include 'components/modal/modalTreino.html' %}
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#treinoModal">
+            <i class="bi bi-plus-circle"></i>
+            Cadastrar nova rotina
+          </button>
+          <select class="form-select w-auto bg-white text-dark" name="rotina_selecionada" id="seletor-rotina">
+            <option selected>Selecione uma rotina</option>
+            {% for rotina in rotinas_aluno %}
+              <option value="{{ rotina.id }}">{{ rotina.nome }} ({{ rotina.criado_em|date:"d/m/Y" }})</option>
+            {% endfor %}
+          </select>
+        </div>
+
+          <!-- corpo do card com a tabela de exercícios -->
+          <div class="card-body p-0">
+            <div id="conteudo-rotina-selecionada">
+              <div class="text-center p-5 text-muted">
+                <i class="bi bi-arrow-up-circle fs-1"></i>
+                <p class="mt-3">Selecione uma rotina no menu acima para visualizar os exercícios</p>
+              </div>
+            </div>
+            
+            <table class="table mb-0 d-none" id="tabela-exercicios-rotina">
+              <thead class="table-light">
+                <tr>
+                  <th></th>
+                  <th>Exercício</th>
+                  <th>Carga</th>
+                  <th>Reps</th>
+                  <th>Desejadas</th>
+                  <th>Sets</th>
+                  <th>Descanso</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="corpo-tabela-exercicios">
+                <!-- Exercícios serão carregados dinamicamente -->
+              </tbody>
+            </table>
+          </div>
+      </div>
+    </div>
+
+    <!-- coluna direita: gráficos e lista de carga por grupo -->
+    <div class="col-lg-4">
+
+      <!-- dois gráficos doughnut lado a lado -->
+      <div class="row mb-4">
+        <div class="col-6">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="card-title text-center mb-3">Distribuição por Grupo</h6>
+              <canvas id="chartTreinoA" height="200"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="card-title text-center mb-3">Carga por Grupo</h6>
+              <canvas id="chartSeriesInferiores" height="200"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- lista com soma de carga por grupo muscular -->
+      <div class="card mb-4">
+        <div class="card-header bg-light">
+          <h6 class="mb-0">Distribuição de Carga</h6>
+        </div>
+        <div class="card-body p-2">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>Peitoral</span>
+              <span class="badge bg-primary rounded-pill">{{ comp.peitoral }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>Costas</span>
+              <span class="badge bg-primary rounded-pill">{{ comp.costas }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>Ombros</span>
+              <span class="badge bg-primary rounded-pill">{{ comp.ombros }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>Tríceps</span>
+              <span class="badge bg-primary rounded-pill">{{ comp.triceps }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>Bíceps</span>
+              <span class="badge bg-primary rounded-pill">{{ comp.biceps }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>Quadríceps</span>
+              <span class="badge bg-primary rounded-pill">{{ comp.quadriceps }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>Posterior</span>
+              <span class="badge bg-primary rounded-pill">{{ comp.posterior }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>Glúteo</span>
+              <span class="badge bg-primary rounded-pill">{{ comp.gluteo }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>Panturrilha</span>
+              <span class="badge bg-primary rounded-pill">{{ comp.panturrilha }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- gráfico de carga no tempo -->
+      <div class="card">
+        <div class="card-header bg-light">
+          <h6 class="mb-0">Evolução de Carga</h6>
+        </div>
+        <div class="card-body">
+          <canvas id="chartLoad" height="150"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+// Armazena o ID do aluno para uso no modal de treino
+window.alunoId = {{ aluno.id }};
+
+// Inicializa os gráficos quando a aba é mostrada
+document.addEventListener('DOMContentLoaded', function() {
+  // Inicializa os gráficos
+  initTreinosCharts();
+  
+  // Configura o seletor de rotina
+  const seletorRotina = document.getElementById('seletor-rotina');
+  if (seletorRotina) {
+    seletorRotina.addEventListener('change', function() {
+      const rotinaId = this.value;
+      if (rotinaId && rotinaId !== 'Selecione uma rotina') {
+        carregarExerciciosRotina(rotinaId);
+      } else {
+        // Esconde a tabela e mostra a mensagem
+        document.getElementById('tabela-exercicios-rotina').classList.add('d-none');
+        document.getElementById('conteudo-rotina-selecionada').innerHTML = `
+          <div class="text-center p-5 text-muted">
+            <i class="bi bi-arrow-up-circle fs-1"></i>
+            <p class="mt-3">Selecione uma rotina no menu acima para visualizar os exercícios</p>
+          </div>
+        `;
+      }
+    });
+  }
+});
+
+// Inicializa os gráficos da aba de treinos
+function initTreinosCharts() {
+  // Gráfico de distribuição por grupo muscular
+  const ctxTreinoA = document.getElementById('chartTreinoA');
+  if (ctxTreinoA) {
+    new Chart(ctxTreinoA, {
+      type: 'doughnut',
+      data: {
+        labels: ['Peitoral', 'Costas', 'Pernas', 'Ombros', 'Braços'],
+        datasets: [{
+          data: [
+            {{ comp.peitoral|default:0 }}, 
+            {{ comp.costas|default:0 }}, 
+            {{ comp.quadriceps|default:0 }} + {{ comp.posterior|default:0 }} + {{ comp.gluteo|default:0 }} + {{ comp.panturrilha|default:0 }}, 
+            {{ comp.ombros|default:0 }}, 
+            {{ comp.biceps|default:0 }} + {{ comp.triceps|default:0 }}
+          ],
+          backgroundColor: [
+            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              boxWidth: 12,
+              font: { size: 10 }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Gráfico de carga por grupo muscular
+  const ctxSeries = document.getElementById('chartSeriesInferiores');
+  if (ctxSeries) {
+    new Chart(ctxSeries, {
+      type: 'doughnut',
+      data: {
+        labels: ['Quadríceps', 'Posterior', 'Glúteos', 'Panturrilha'],
+        datasets: [{
+          data: [
+            {{ comp.quadriceps|default:0 }}, 
+            {{ comp.posterior|default:0 }}, 
+            {{ comp.gluteo|default:0 }}, 
+            {{ comp.panturrilha|default:0 }}
+          ],
+          backgroundColor: [
+            '#4BC0C0', '#FFCE56', '#FF6384', '#36A2EB'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              boxWidth: 12,
+              font: { size: 10 }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Gráfico de evolução de carga
+  const ctxLoad = document.getElementById('chartLoad');
+  if (ctxLoad) {
+    new Chart(ctxLoad, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+        datasets: [{
+          label: 'Carga Média (kg)',
+          data: [65, 70, 75, 72, 80, 85],
+          borderColor: '#0d47a1',
+          backgroundColor: 'rgba(13, 71, 161, 0.1)',
+          tension: 0.3,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: false,
+            grid: {
+              display: true,
+              color: 'rgba(0, 0, 0, 0.05)'
+            }
+          },
+          x: {
+            grid: {
+              display: false
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
+// Carrega os exercícios de uma rotina específica
+async function carregarExerciciosRotina(rotinaId) {
+  try {
+    // Mostra a tabela
+    document.getElementById('tabela-exercicios-rotina').classList.remove('d-none');
+    document.getElementById('conteudo-rotina-selecionada').innerHTML = '';
+    
+    // Mostra indicador de carregamento
+    document.getElementById('corpo-tabela-exercicios').innerHTML = `
+      <tr>
+        <td colspan="8" class="text-center p-4">
+          <div class="d-flex justify-content-center align-items-center">
+            <div class="spinner-border text-primary me-3" role="status">
+              <span class="visually-hidden">Carregando...</span>
+            </div>
+            <span>Carregando exercícios...</span>
+          </div>
+        </td>
+      </tr>
+    `;
+    
+    // Faz a requisição AJAX para obter os exercícios da rotina
+    const response = await fetch(`/api/treinos/${rotinaId}/exercicios/`);
+    
+    if (!response.ok) {
+      throw new Error(`Erro HTTP: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.exercicios && data.exercicios.length > 0) {
+      // Preenche a tabela com os exercícios
+      let html = '';
+      data.exercicios.forEach(ex => {
+        html += `
+          <tr>
+            <td><i class="bi bi-check-circle-fill text-success"></i></td>
+            <td>${ex.nome}</td>
+            <td>${ex.carga} kg</td>
+            <td>${ex.repeticoes || '-'}</td>
+            <td>${ex.repeticoes || '-'}</td>
+            <td>${ex.series || '-'}</td>
+            <td>${ex.intervalo_seg || '-'}s</td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary" onclick="editarExercicio(${ex.id})">
+                <i class="bi bi-pencil"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+      
+      document.getElementById('corpo-tabela-exercicios').innerHTML = html;
+    } else {
+      // Mostra mensagem se não houver exercícios
+      document.getElementById('corpo-tabela-exercicios').innerHTML = `
+        <tr>
+          <td colspan="8" class="text-center p-4">
+            <i class="bi bi-info-circle me-2"></i>
+            Nenhum exercício encontrado para esta rotina.
+          </td>
+        </tr>
+      `;
+    }
+    
+  } catch (error) {
+    console.error('Erro ao carregar exercícios:', error);
+    document.getElementById('corpo-tabela-exercicios').innerHTML = `
+      <tr>
+        <td colspan="8" class="text-center p-4 text-danger">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          Erro ao carregar exercícios. Tente novamente.
+        </td>
+      </tr>
+    `;
+  }
+}
+
+// Função para editar um exercício
+function editarExercicio(exercicioId) {
+  // Implementação futura
+  alert(`Edição do exercício ${exercicioId} será implementada em breve.`);
+}
+
+// Função para inicializar a aba de treinos (chamada após recarregar)
+function initTreinosTab() {
+  console.log('Inicializando aba de treinos...');
+  initTreinosCharts();
+  
+  // Recarrega o seletor de rotinas
+  const seletorRotina = document.getElementById('seletor-rotina');
+  if (seletorRotina && seletorRotina.value !== 'Selecione uma rotina') {
+    carregarExerciciosRotina(seletorRotina.value);
+  }
+}
+</script>

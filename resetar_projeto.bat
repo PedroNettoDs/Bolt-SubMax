@@ -8,7 +8,6 @@ echo - Apagar o banco de dados "db.sqlite3"
 echo - Remover todas as pastas "__pycache__"
 echo - Excluir arquivos ".pyc"
 echo - Apagar a pasta "staticfiles"
-echo - Remover arquivos de migração (exceto __init__.py)
 echo.
 
 set /p CONFIRMA="Tem certeza que deseja continuar? (s/n): "
@@ -44,44 +43,6 @@ if exist staticfiles (
     echo ⚠️ Pasta "staticfiles" não encontrada.
 )
 
-echo ▶ Removendo arquivos de migração (exceto __init__.py)...
-for /d %%d in (core\migrations alunos\migrations avaliacao\migrations exercicio\migrations treino\migrations organizacao\migrations) do (
-    if exist %%d (
-        for %%f in (%%d\*.py) do (
-            if not "%%~nxf"=="__init__.py" (
-                del /f /q "%%f"
-                echo Removido: %%f
-            )
-        )
-    )
-)
-echo ✅ Arquivos de migração removidos.
-
 echo.
 echo 🧹 Limpeza finalizada com sucesso!
-echo.
-echo ▶ Criando novas migrações...
-python manage.py makemigrations core alunos avaliacao exercicios treinos organizacao || goto :erro
-echo ✅ Novas migrações criadas.
-
-echo.
-echo ▶ Aplicando migrações...
-python manage.py migrate || goto :erro
-echo ✅ Migrações aplicadas.
-
-echo.
-echo ▶ Coletando arquivos estáticos...
-if not exist staticfiles mkdir staticfiles
-python manage.py collectstatic --noinput || goto :erro
-echo ✅ Arquivos estáticos coletados.
-
-echo.
-echo 🚀 Projeto resetado e pronto para uso!
 pause
-exit /b
-
-:erro
-echo.
-echo ❌ Ocorreu um erro durante a execução dos comandos.
-pause
-exit /b 1

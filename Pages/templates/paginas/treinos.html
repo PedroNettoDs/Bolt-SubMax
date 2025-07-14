@@ -1,0 +1,145 @@
+{% extends "components/base.html" %}
+{% block title %}Treinos{% endblock %}
+
+{% block body-base %}
+<div class="container my-5">
+  <div class="row g-5">
+
+    <!-- Card Exercícios - dinâmico -->
+    <div class="col-md-6">
+      <div class="card shadow rounded-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <h5 class="mb-0 fw-semibold">Gerenciar Exercícios</h5>
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCadExercicio">
+            <i class="bi bi-plus-circle"></i>
+            Cadastrar exercicio
+          </button>
+        </div>
+        <!-- TODO listagem de exercício gravados no banco -->
+        <div class="card-body">
+          <form class="mb-3 d-flex gap-2">
+            <input type="text" name="busca_exercicio" class="form-control rounded-pill" placeholder="Pesquisar exercício...">
+            <button class="btn btn-outline-secondary rounded-circle" type="submit">
+              <i class="bi bi-search"></i>
+            </button>
+          </form>
+          <ul class="list-group list-group-flush">
+            {% for exercicio in exercicios_page %}
+            <li class="list-group-item d-flex justify-content-between align-items-center bg-light rounded-3 my-2 shadow-sm">
+              <div>
+                <div class="fw-semibold">{{ exercicio.nome }}</div>
+                <div class="text-muted small">{{ exercicio.descricao }}</div>
+                <span class="badge bg-primary mt-1">{{ exercicio.grupo_muscular }}</span>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary btn-sm rounded-circle" title="Editar">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-outline-danger btn-sm rounded-circle" title="Remover">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </li>
+            {% empty %}
+            <li class="list-group-item">Nenhum exercício cadastrado.</li>
+            {% endfor %}
+          </ul>
+<nav aria-label="Paginação Exercícios">
+  <ul class="pagination justify-content-center mt-3">
+    {% if exercicios_page.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page_exercicio={{ exercicios_page.previous_page_number }}{% if busca_exercicio %}&busca_exercicio={{ busca_exercicio }}{% endif %}">Anterior</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+    {% endif %}
+    {% for num in exercicios_page.paginator.page_range %}
+      {% if exercicios_page.number == num %}
+        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+      {% else %}
+        <li class="page-item"><a class="page-link" href="?page_exercicio={{ num }}{% if busca_exercicio %}&busca_exercicio={{ busca_exercicio }}{% endif %}">{{ num }}</a></li>
+      {% endif %}
+    {% endfor %}
+    {% if exercicios_page.has_next %}
+      <li class="page-item"><a class="page-link" href="?page_exercicio={{ exercicios_page.next_page_number }}{% if busca_exercicio %}&busca_exercicio={{ busca_exercicio }}{% endif %}">Próximo</a></li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">Próximo</span></li>
+    {% endif %}
+  </ul>
+</nav>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Card Treinos - dinâmico -->
+     <!-- TODO listagem de treino gravados no banco -->
+      <!-- TODO modal cadastro de treino-predefinido-->
+    <div class="col-md-6">
+      <div class="card shadow rounded-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <h5 class="mb-0 fw-semibold">Gerenciar Treinos</h5>
+          <button class="btn btn-primary d-flex align-items-center gap-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#treinoModal">
+            <i class="bi bi-plus-circle"></i> Cadastrar Treino
+          </button>
+        </div>
+        <div class="card-body">
+          <form class="mb-3 d-flex gap-2">
+            <input type="text" name="busca_treino" class="form-control rounded-pill" placeholder="Pesquisar treino...">
+            <button class="btn btn-outline-secondary rounded-circle" type="submit">
+              <i class="bi bi-search"></i>
+            </button>
+          </form>
+          <ul class="list-group list-group-flush">
+            {% for treino in treinos_page %}
+            <li class="list-group-item d-flex justify-content-between align-items-center bg-light rounded-3 my-2 shadow-sm">
+              <div>
+                <div class="fw-semibold">{{ treino.nome }}</div>
+                <div class="text-muted small">{{ treino.anotacoes }}</div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary btn-sm rounded-circle" title="Editar">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-outline-danger btn-sm rounded-circle" title="Remover">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </li>
+            {% empty %}
+            <li class="list-group-item">Nenhum treino cadastrado.</li>
+            {% endfor %}
+          </ul>
+<nav aria-label="Paginação Treinos">
+  <ul class="pagination justify-content-center mt-3">
+    {% if treinos_page.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page_treino={{ treinos_page.previous_page_number }}{% if busca_treino %}&busca_treino={{ busca_treino }}{% endif %}">Anterior</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+    {% endif %}
+    {% for num in treinos_page.paginator.page_range %}
+      {% if treinos_page.number == num %}
+        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+      {% else %}
+        <li class="page-item"><a class="page-link" href="?page_treino={{ num }}{% if busca_treino %}&busca_treino={{ busca_treino }}{% endif %}">{{ num }}</a></li>
+      {% endif %}
+    {% endfor %}
+    {% if treinos_page.has_next %}
+      <li class="page-item"><a class="page-link" href="?page_treino={{ treinos_page.next_page_number }}{% if busca_treino %}&busca_treino={{ busca_treino }}{% endif %}">Próximo</a></li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">Próximo</span></li>
+    {% endif %}
+  </ul>
+</nav>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% include 'components/modal/modalCadExercicio.html' %}
+{% endblock %}

@@ -1,0 +1,209 @@
+{% extends "components/base.html" %}
+{% block title %}Usuários{% endblock %}
+
+ {% block head-base %}
+  <style>
+    .style-nome-edit {
+      color: #0d47a1;
+      text-decoration: none;
+    }
+
+    /* estilo main-content */
+    .main-content {
+      flex-grow: 1;
+      padding: 1.5rem;
+      margin-left: 250px;
+      transition: margin-left 0.3s ease;
+    }
+
+    /* início collapsed behavior */
+    body.collapsed .main-content {
+      margin-left: 80px;
+    }
+
+    /* estilo avatar */
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: #ddd;
+      display: inline-block;
+    }
+
+    /* estilo badges */
+    .badge-tag {
+      background-color: #f3f0ff;
+      color: #0d47a1;
+      font-size: 0.75rem;
+      margin-right: 2px;
+    }
+
+    /*  botões de ação */
+    .btn-edit {
+      color: #0d47a1;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .btn-edit:hover {
+      text-decoration: underline;
+    }
+
+
+    /*  estilo de cabeçalho de tabela */
+    .table thead th {
+      vertical-align: middle;
+    }
+
+    /*  media queries */
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      .main-content {
+        margin-left: 0 !important;
+        padding: 1rem;
+      }
+      .table-responsive {
+        overflow-x: auto;
+      }
+      .form-control {
+        width: 100% !important;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block body-base %}
+  <div class="main-content">
+    <div class="card p-4 shadow-sm">
+
+      <!--  barra de busca e botão de cadastro -->
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-2">
+        <i class="bi bi-search style-edit"></i><input type="text" id="searchInput" class="form-control w-100 w-md-50" placeholder="Buscar usuario...">
+        
+        <a href="" class="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalCadastroUsuario">
+          <i class="bi bi-person-plus"></i>
+          Cadastro
+        </a>
+      </div>
+
+      <!--  tabela responsiva -->
+      <div class="table-responsive">
+        <table class="table align-middle">
+
+          <!--  cabeçalho da tabela -->
+          <thead>
+            <tr>
+              <th><input id="checkbox-master" type="checkbox"></th>
+              <th>ID</th>
+              <th>Usuário</th>
+              <th>Status Do Usuários</th>
+              <th>Organização</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+
+          <!-- corpo da tabela -->
+          <tbody>
+            {% for usuario in usuarios %}
+            <tr>
+              <td><input type="checkbox" class="checkbox-list"></td>
+              <td>#{{ usuario.id }}</td>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <img class="avatar" src="../../../static/img/user.png" alt="Avatar">
+                  <div>
+                    <div>
+                      {{ usuario.first_name }}
+                    </div>
+                    <small class="text-muted">{{ usuario.perfilusuario.cpf }}</small>
+                  </div>
+                </div>
+              </td>
+              <td>
+                {% if usuario.is_active == 1 %}
+                  <span class="text-success fw-semibold"><i class="bi bi-check-circle-fill"></i> Ativo</span>
+                {% else %}
+                  <span class="text-danger fw-semibold"><i class="bi bi-x-circle-fill"></i> Não Ativo </span>
+                {% endif %}
+              </td>
+              <td>
+                {% if usuario.perfilusuario.organizacao %}
+                  {{ usuario.perfilusuario.organizacao.nome }}
+                {% else %}
+                  Nenhuma organização
+                {% endif %}
+              </td>
+              <td>
+                <button class="btn btn-sm btn-primary"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalCadastroUsuario"
+                        data-id="{{ usuario.id }}"
+                        data-nome="{{ usuario.first_name }}"
+                        data-sobrenome="{{ usuario.last_name }}"
+                        data-cpf="{{ usuario.perfilusuario.cpf }}"
+                        data-email="{{ usuario.email }}"
+                        data-ativo="{{ usuario.is_active }}"
+                        data-bloqueado="{{ usuario.perfilusuario.status_bloqueio }}"
+                        data-nivelacesso="{{ usuario.perfilusuario.nivel_acesso }}"
+                        data-organizacoes="{{ usuario.perfilusuario.organizacao.id }}"
+                        onclick="abrirModalEdicaoUsuarioComData(this)">
+                  <i class="bi bi-pencil-square"></i> Editar
+                </button>
+              </td> 
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% include 'components/modal/modalUsuario.html' %}
+
+      <!-- início paginação -->
+      {% if usuarios.has_other_pages %}
+      <nav>
+        <ul class="pagination justify-content-center mt-3">
+          {% if usuarios.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ usuarios.previous_page_number }}">Previous</a>
+          </li>
+          {% endif %}
+          {% for num in usuarios.paginator.page_range %}
+            <li class="page-item {% if usuarios.number == num %}active{% endif %}">
+              <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+          {% endfor %}
+          {% if usuarios.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ usuarios.next_page_number }}">Next</a>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+  </div>
+
+
+<script>
+  const sidebarToggle = document.querySelector('.sidebar-toggle');
+  if (sidebarToggle) {
+    sidebarToggle.addEventListener('click', () => {
+      document.body.classList.toggle('collapsed');
+    });
+  }
+
+
+  // início checkbox master
+  const masterCheckbox = document.getElementById('checkbox-master');
+  const checkboxes = document.querySelectorAll('.checkbox-list');
+
+  masterCheckbox.addEventListener('change', function () {
+    checkboxes.forEach(function (checkbox) {
+      checkbox.checked = masterCheckbox.checked;
+    });
+  });
+
+</script>
+
+{% endblock %}

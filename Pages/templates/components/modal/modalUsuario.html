@@ -1,0 +1,332 @@
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+
+
+<style>
+  .custom-model-usuario {
+    background-color: #0d47a1;
+    color: #fff !important;
+  }
+
+  .custom-icone {
+    color: #fff !important;
+  }
+
+  .icone-salvar {
+    background-color: #0d47a1;
+  }
+
+  .modal-body {
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-footer {
+    position: sticky;
+    bottom: 0;
+    background-color: #fff;
+    z-index: 10;
+    border-top: 1px solid #dee2e6;
+  }
+</style>
+
+<!-- Modal de Cadastro de Usuário -->
+<div class="modal fade" id="modalCadastroUsuario" tabindex="-1" aria-labelledby="modalCadastroUsuarioLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header custom-model-usuario">
+        <h5 class="modal-title" id="tituloModalUsuario">
+          <i class="bi bi-person-plus me-2"></i> Cadastrar Novo Usuário
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+
+      <form method="post" action="{% url 'cadastrar_usuario' %}" id="formCadastroUsuario">
+        {% csrf_token %}
+        <input type="hidden" id="usuario_id" name="usuario_id"> <!-- Campo oculto para o ID do usuário -->
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="usuario">Nome</label>
+              <input type="text" class="form-control" id="usuario" name="nome" required>
+            </div>
+            <div class="col-md-6">
+              <label for="sobrenome">Sobrenome</label>
+              <input type="text" class="form-control" id="sobrenome" name="sobrenome" required>
+            </div>
+            <div class="col-md-6">
+              <label for="cpf">CPF (Login)</label>
+              <input type="text" class="form-control" id="cpf" name="cpf" required>
+            </div>
+            <div class="col-md-6">
+              <label for="email">Email</label>
+              <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="col-md-6">
+              <label for="nivel_acesso">Tipo de Usuário</label>
+              <select class="form-select" name="nivel_acesso" id="nivel_acesso">
+                <option value="usuario">Usuário Comum</option>
+                <option value="administrador">Administrador</option>
+                <option value="master">Master</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Status do Usuário</label>
+              <div class="form-check form-switch">
+                <div>
+                  <input class="form-check-input" type="checkbox" name="status-user" id="ativo" checked>
+                  <label class="form-check-label" for="ativo">Ativo</label>
+                </div>
+                <div>
+                  <input class="form-check-input" type="checkbox" name="status-user-block" id="bloqueio">
+                  <label class="form-check-label" for="bloqueio">Bloqueio</label>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-12">
+              <label for="organizacoes">Organizações</label>
+              <select class="form-select" name="organizacoes" id="organizacoes">
+                {% for org in organizacoes %}
+                  <option value="{{ org.id }}">{{ org.nome }} [{{ org.id }}]</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer d-flex justify-content-between">
+          <div>
+            <button id="btnresetarSenha" type="button" class="btn btn-primary d-none">
+              <i class="bi bi-arrow-clockwise"></i> Resetar Senha
+            </button>
+          </div>
+          <div>
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+              <i class="bi bi-x-circle me-1"></i> Cancelar
+            </button>
+            <button type="button" id="btnSalvarUsuario" class="icone-salvar btn btn-primary">
+              <i class="bi bi-save me-1"></i> Salvar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmação / Resultado -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header custom-model-usuario">
+        <h5 class="modal-title" id="confirmModalLabel">Confirmação</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body" id="confirmModalBody">
+        Tem certeza que deseja resetar a senha deste usuário?
+      </div>
+      <div class="modal-footer" id="confirmModalFooter">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="confirmResetBtn">Sim, resetar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const modalEl = document.getElementById('modalCadastroUsuario');
+    const form = document.getElementById('formCadastroUsuario');
+    const cpfInput = document.getElementById('cpf');
+    const emailInput = document.getElementById('email');
+    const btnSalvar = document.getElementById('btnSalvarUsuario');
+
+    // Aplica a máscara no CPF
+    $(cpfInput).mask('000.000.000-00');
+
+    function limparFormularioUsuario() {
+      if (form) {
+        form.reset();
+        form.querySelectorAll('.is-valid, .is-invalid').forEach(el =>
+          el.classList.remove('is-valid', 'is-invalid')
+        );
+        document.getElementById('tituloModalUsuario').innerHTML = '<i class="bi bi-person-plus me-2"></i>  Cadastro de usuário';
+        document.getElementById('btnSalvarUsuario').innerHTML = '<i class="bi bi-save me-1"></i> Salvar';
+        document.getElementById('btnresetarSenha').classList.add('d-none');
+      }
+    }
+
+    if (modalEl) {
+      modalEl.addEventListener('hidden.bs.modal', limparFormularioUsuario);
+    }
+
+    const campos = form.querySelectorAll('[required]');
+    campos.forEach(campo => {
+      const evento = campo.tagName === 'SELECT' ? 'change' : 'input';
+      campo.addEventListener(evento, () => {
+        if (campo.value.trim()) {
+          campo.classList.remove('is-invalid');
+          campo.classList.add('is-valid');
+        } else {
+          campo.classList.remove('is-valid');
+          campo.classList.add('is-invalid');
+        }
+      });
+    });
+
+    if (btnSalvar) {
+      btnSalvar.addEventListener('click', function () {
+        let valido = true;
+        let primeiroInvalido = null;
+
+        campos.forEach(campo => {
+          if (!campo.value.trim()) {
+            campo.classList.add('is-invalid');
+            campo.classList.remove('is-valid');
+            valido = false;
+            if (!primeiroInvalido) primeiroInvalido = campo;
+          }
+        });
+
+        if (!validarCPF(cpfInput.value)) {
+          cpfInput.classList.add('is-invalid');
+          cpfInput.classList.remove('is-valid');
+          valido = false;
+          primeiroInvalido = cpfInput;
+        }
+
+        // Valida email simples
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailInput.value)) {
+          emailInput.classList.add('is-invalid');
+          emailInput.classList.remove('is-valid');
+          valido = false;
+          primeiroInvalido = emailInput;
+        }
+
+        if (!valido && primeiroInvalido) {
+          primeiroInvalido.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+
+        // Define senha automática com base nos 6 primeiros dígitos do CPF
+        const cpfLimpo = cpfInput.value.replace(/\D/g, '');
+        if (cpfLimpo.length >= 6) {
+          const senhaGerada = cpfLimpo.substring(0, 6);
+          const inputSenha = document.createElement('input');
+          inputSenha.type = 'hidden';
+          inputSenha.name = 'senha';
+          inputSenha.value = senhaGerada;
+          form.appendChild(inputSenha);
+        }
+
+        form.submit();
+      });
+    }
+  });
+
+function validarCPF(cpf) {
+  cpf = cpf.replace(/\D/g, '');
+  if (!cpf || cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+
+  for (let j = 9; j < 11; j++) {
+    let soma = 0;
+    for (let i = 0; i < j; i++) soma += +cpf[i] * (j + 1 - i);
+    let digito = (soma * 10) % 11;
+    if (digito === 10) digito = 0;
+    if (digito !== +cpf[j]) return false;
+  }
+  return true;
+}
+
+function formatarCPF(cpf) {
+  cpf = cpf.replace(/\D/g, ''); // Remove caracteres não numéricos
+  return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+}
+  
+function abrirModalEdicaoUsuarioComData(botao) {
+  const d = botao.dataset;
+  // Título e action
+  document.getElementById('tituloModalUsuario').innerHTML = '<i class="bi bi-pencil-square"></i> Editar Usuário';
+  document.getElementById('btnSalvarUsuario').innerHTML = '<i class="bi bi-pencil-square me-1"></i> Editar';
+  document.getElementById('formCadastroUsuario').action = `/editar_usuario/${d.id}/`;
+  document.getElementById('btnresetarSenha').classList.remove('d-none');
+
+  // Campos de texto
+  document.getElementById('usuario_id').value = d.id;
+  document.getElementById('usuario').value = d.nome;
+  document.getElementById('sobrenome').value = d.sobrenome;
+  document.getElementById('cpf').value = formatarCPF(d.cpf);
+  document.getElementById('email').value = d.email;
+  document.getElementById('organizacoes').value = d.organizacoes;
+
+  // Nível de acesso
+  const tipo = document.getElementById('nivel_acesso');
+  if (tipo) tipo.value = d.nivelacesso;
+
+  // Checkbox ativo
+  document.getElementById('ativo').checked = d.ativo === 'True' || d.ativo === 'true' || d.ativo === '1';
+
+  // Checkbox bloqueio
+  document.getElementById('bloqueio').checked = d.bloqueado === 'bloqueado' || d.bloqueado === 'true' || d.bloqueado === 'True';
+
+  // Seleção de organizações
+  const selectOrgs = document.getElementById('organizacoes');
+  if (selectOrgs && d.organizacoes) {
+    const idsSelecionados = d.organizacoes.split(',');
+  }
+}
+
+let usuarioIdConfirmado = null;
+
+  $('#btnresetarSenha').on('click', function () {
+    const usuarioId = $('#usuario_id').val();
+    if (!usuarioId) return;
+
+    usuarioIdConfirmado = usuarioId;
+
+    // Resetar o conteúdo do modal para confirmação
+    $('#confirmModalLabel').text('Confirmação');
+    $('#confirmModalBody').text('Tem certeza que deseja resetar a senha deste usuário?');
+    $('#confirmModalFooter').html(`
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="confirmResetBtn">Sim, resetar</button>
+    `);
+
+    const confirmModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmModal'));
+    confirmModal.show();
+  });
+
+  // Evento delegado para o botão que será recriado
+  $('#confirmModalFooter').on('click', '#confirmResetBtn', function () {
+    $.ajax({
+      url: "{% url 'resetar_senha_usuario' %}",
+      method: "POST",
+      data: {
+        'usuario_id': usuarioIdConfirmado,
+        'csrfmiddlewaretoken': '{{ csrf_token }}'
+      },
+      success: function (data) {
+        $('#confirmModalLabel').text('Sucesso');
+        $('#confirmModalBody').text('Senha resetada com sucesso!, 6 Primeiro digito do CPF.!');
+        $('#confirmModalFooter').html(`
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Fechar</button>
+        `);
+      },
+      error: function () {
+        $('#confirmModalLabel').text('Erro');
+        $('#confirmModalBody').text('Erro ao tentar resetar a senha.');
+        $('#confirmModalFooter').html(`
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Fechar</button>
+        `);
+      }
+    });
+  });
+
+
+</script>

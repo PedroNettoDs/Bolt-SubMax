@@ -1,0 +1,247 @@
+{% extends "components/base.html" %}
+{% block title %}Ficha do Aluno{% endblock %}
+
+{% block head-base %}
+  <style>
+    .tab-icon {
+      font-size: 1.5rem;
+    }
+
+    .tab-nav .nav-link.active {
+      font-weight: bold;
+      color: #0d47a1;
+    }
+
+    .info-box {
+      background: white;
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .input-group-text {
+      background-color: #e9ecef;
+    }
+
+    .Card-FichaAluno {
+      padding-top: 3%;
+    }
+
+    .btn-primary {
+      background-color: #0d47a1 !important;
+      border-color: #0d47a1 !important;
+    }
+
+    .btn-primary:hover {
+      background-color: #0d314a !important;
+      color: white !important;
+    }
+
+    .col-md-1-3 {
+    flex: 0 0 9.5%;
+    max-width: 9.5%;
+  }
+
+  </style>
+{% endblock %}
+
+{% block body-base %}
+
+  <!-- início conteúdo principal -->
+  <main class="main-content container ">
+    <div class="Card-FichaAluno">
+      <form method="POST" action="{% url 'atualizar_aluno' aluno.id %}">
+        {% csrf_token %}
+        <div class="card info-box mb-4">
+          <div class="d-flex align-items-center mb-3">
+            <div class="avatar rounded-circle me-3" style="width: 60px; height: 60px; background-color: #ccc;"></div>
+            <h5 class="mb-0">ID #{{ aluno.id }}</span></h5> <!-- Exibe o ID do aluno -->
+          </div>
+          <div class="row g-3">
+            <div class="col-md-1-3">
+              <label class="form-label">ID do Aluno</label>
+              <!-- Exibe o ID como um texto não editável -->
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                <input name="id" type="text" class="form-control" value="{{ aluno.id }}" readonly>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Ativo</label>
+              <div class="form-check form-switch">
+                <!-- Adicionando disabled ao input para desabilitar o switch -->
+                <input class="form-check-input" type="checkbox" name="ativo" {% if aluno.ativo %}checked{% endif %} disabled>
+                <label class="form-check-label" for="flexSwitchCheckDefault">Status Do Aluno</label>
+              </div>
+            </div>
+            <div class="col-md-5">
+              <label class="form-label">Nome</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                <input type="text" class="form-control editable-field" name="nome" value="{{ aluno.nome }}" required readonly>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Data de Nascimento</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-calendar-date"></i></span>
+                <input type="date" name="data_nascimento" class="form-control editable-field" value="{{ aluno.data_nascimento|date:'Y-m-d' }}" required readonly>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Sexo</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-gender-ambiguous"></i></span>
+                <select class="form-select editable-field" name="sexo" required disabled>
+                  <option value="Masculino" {% if aluno.sexo == "Masculino" %}selected{% endif %}>Masculino</option>
+                  <option value="Feminino" {% if aluno.sexo == "Feminino" %}selected{% endif %}>Feminino</option>
+                  <option value="Outro" {% if aluno.sexo == "Outro" %}selected{% endif %}>Outro</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Telefone</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                <input type="text" class="form-control editable-field" name="telefone" value="{{ aluno.telefone }}" required readonly>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Email</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                <input type="email" class="form-control editable-field" name="email" value="{{ aluno.email }}" required readonly>
+              </div>
+            </div>
+            <div class="col-md-12 d-flex justify-content-end gap-2">
+              <!-- Botão de Editar -->
+              <button id="btnEditarDadosAluno" type="button" class="btn btn-primary" onclick="habilitarEdicao()">
+                <i class="bi bi-pencil"></i> Editar Dados
+              </button>
+              <!-- Botão de Salvar -->
+              <button type="button" class="btn btn-primary d-none"id="btnSalvarDadosAluno" onclick="submitForm()">
+                <i class="bi bi-save"></i> Salvar
+              </button>
+              <!-- Botão de Cancelar -->
+              <button type="button" class="btn btn-secondary d-none" id="btnCancelarDadosAluno" onclick="cancelarEdicao()">
+                <i class="bi bi-x-circle"></i> Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    
+  <!-- Botões de ação -->
+  <div class="d-flex gap-2 mb-3">
+    <!-- botão para abrir modal de avaliação -->
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#avaliacaoModal">
+      <i class="bi bi-plus-circle"></i> Cadastrar Avaliação
+    </button>
+    
+    <!-- botão para criar nova rotina -->
+    <a href="{% url 'nova_rotina' aluno.id %}" class="btn btn-primary">
+      <i class="bi bi-plus-circle"></i> Cadastrar Treino
+    </a>
+  </div>
+  
+  {% include 'components/modal/modalAvaliacao.html' %}
+
+      <div class="info-box">
+        <!-- início navegação das abas -->
+        <ul class="nav nav-tabs tab-nav mb-4" role="tablist">
+          <li class="nav-item nav-item-edit"><a class="nav-link active" data-bs-toggle="tab" href="#dados">
+              <span class="icon-cor-sistema" ><i class="bi bi-file-earmark-text tab-icon"></i> Dados Pessoais</span>
+            </a></li>
+          <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#avaliacao">
+              <span class="icon-cor-sistema" ><i class="bi bi-star tab-icon"></i> Avaliação</span>
+            </a></li>
+          <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#treinos">
+             <span class="icon-cor-sistema" ><i class="bi bi-clock-history tab-icon"></i> Treinos</span>
+            </a></li>
+        </ul>
+
+        <!-- início container das abas -->
+        <div class="tab-content info-box">
+          {% include 'components/aba/abaDadosPessoais.html' %}
+          {% include 'components/aba/abaAvaliacao.html' %}
+          {% include 'components/aba/abaTreinos.html' %}
+        </div>
+      </div>
+  </main>
+
+  <script>
+  function submitForm() {
+    // Validação de nome
+    const nomeField = document.querySelector('input[name="nome"]');
+    if (nomeField.value.trim() === '') {
+      nomeField.classList.add('is-invalid');
+    } else {
+      nomeField.classList.remove('is-invalid');
+    }
+
+    // Validação de telefone (apenas números e espaços)
+    const telefoneField = document.querySelector('input[name="telefone"]');
+    const telefoneRegex = /^[0-9\s]+$/;  // Aceita números e espaços
+    if (!telefoneRegex.test(telefoneField.value)) {
+      telefoneField.classList.add('is-invalid');
+    } else {
+      telefoneField.classList.remove('is-invalid');
+    }
+
+    // Validação de email
+    const emailField = document.querySelector('input[name="email"]');
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    if (!emailRegex.test(emailField.value)) {
+      emailField.classList.add('is-invalid');
+    } else {
+      emailField.classList.remove('is-invalid');
+    }
+
+    // Verificar se há algum campo inválido
+    if (document.querySelector('.is-invalid')) {
+      // Se houver campo inválido, não envia o formulário
+      return;
+    }
+
+    // Se não houver campos inválidos, envia o formulário
+    document.querySelector('form').submit();
+  }
+
+  // A função habilitarEdicao foi mantida, para permitir a edição
+  function habilitarEdicao() {
+    document.querySelectorAll('.editable-field').forEach(el => {
+      el.removeAttribute('readonly');
+      el.removeAttribute('disabled');
+    });
+
+    // Habilitar o switch também
+    document.querySelector('input[name="ativo"]').removeAttribute('disabled');
+
+    document.getElementById('btnEditarDadosAluno').classList.add('d-none');
+    document.getElementById('btnSalvarDadosAluno').classList.remove('d-none');
+    document.getElementById('btnCancelarDadosAluno').classList.remove('d-none');
+  }
+
+  function cancelarEdicao() {
+    // Atualiza os campos para os valores originais do aluno
+    document.querySelectorAll('.editable-field').forEach(el => {
+      el.setAttribute('readonly', true);
+      el.setAttribute('disabled', true);
+    });
+
+    // Desabilitar o switch novamente
+    document.querySelector('input[name="ativo"]').setAttribute('disabled', true);
+
+    // Esconde os botões de salvar e cancelar, mostrando o botão de editar
+    document.getElementById('btnEditarDadosAluno').classList.remove('d-none');
+    document.getElementById('btnSalvarDadosAluno').classList.add('d-none');
+    document.getElementById('btnCancelarDadosAluno').classList.add('d-none');
+
+    // Recarrega a página para mostrar os dados originais sem redirecionar
+    window.location.reload();
+  }
+</script>
+
+{% endblock %}
+<!-- fim template: ficha do aluno -->

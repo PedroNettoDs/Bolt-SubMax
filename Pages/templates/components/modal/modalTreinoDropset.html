@@ -1,0 +1,456 @@
+<!-- Modal de Cadastro de Treino -->
+<div class="modal fade" id="treinoModal" tabindex="-1" aria-labelledby="treinoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="treinoModalLabel">Cadastrar Treino</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+  
+          <!-- Navegação entre treinos (dinâmico) -->
+          <ul class="nav nav-tabs mb-3" id="abasTreino">
+            <li class="nav-item">
+              <a class="nav-link active" data-bs-toggle="tab" href="#treinoA">Treino A</a>
+            </li>
+            <!-- Treinos adicionais serão inseridos via JS -->
+            <li class="nav-item">
+              <button class="btn btn-sm btn-outline-secondary ms-2" onclick="adicionarAbaTreino()">+ Novo Treino</button>
+            </li>
+          </ul>
+  
+          <!-- Dropdowns e filtros -->
+          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <select class="form-select w-auto" aria-label="Grupo de exercícios">
+              <option selected>Grupos de exercícios</option>
+              <option value="1">Membros superiores</option>
+              <option value="2">Membros inferiores</option>
+              <option value="3">Cardio</option>
+            </select>
+            <input type="text" class="form-control w-auto" placeholder="Pesquisar exercícios">
+          <!-- Modal para editar séries -->
+          <div class="modal fade" id="seriesModal" tabindex="-1" aria-labelledby="seriesModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-md">
+                <div class="modal-content">
+                  <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title" id="seriesModalLabel">Séries</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                  </div>
+                  <div class="modal-body">
+  
+          <!-- Campo para adicionar nova série -->
+          <div class="mb-3">
+            <label for="novaSerie" class="form-label">Descrição*</label>
+            <input type="text" id="novaSerie" class="form-control" maxlength="50" placeholder="Ex: Aquecimento leve">
+            <small class="text-muted">1 / 50</small>
+            <button class="btn btn-sm btn-primary mt-2" onclick="adicionarSerie()">+ Adicionar</button>
+          </div>
+  
+          <!-- Campo de filtro -->
+          <input type="text" class="form-control mb-3" id="filtroSerie" placeholder="Filtrar séries" onkeyup="filtrarSeries()">
+  
+          <!-- Lista de séries existentes -->
+          <ul class="list-group" id="listaSeries">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>= a</span>
+              <span>
+                <button class="btn btn-sm btn-outline-secondary me-1" onclick="editarSerie(this)">✏️</button>
+                <button class="btn btn-sm btn-outline-danger" onclick="removerSerie(this)">🗑️</button>
+              </span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>= b</span>
+              <span>
+                <button class="btn btn-sm btn-outline-secondary me-1" onclick="editarSerie(this)">✏️</button>
+                <button class="btn btn-sm btn-outline-danger" onclick="removerSerie(this)">🗑️</button>
+              </span>
+            </li>
+            <!-- Mais itens serão adicionados dinamicamente -->
+          </ul>
+  
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function adicionarSerie() {
+      const desc = document.getElementById("novaSerie").value.trim();
+      if (!desc) return;
+  
+      const item = `
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>= ${desc}</span>
+          <span>
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="editarSerie(this)">✏️</button>
+            <button class="btn btn-sm btn-outline-danger" onclick="removerSerie(this)">🗑️</button>
+          </span>
+        </li>`;
+      document.getElementById("listaSeries").insertAdjacentHTML("beforeend", item);
+      document.getElementById("novaSerie").value = "";
+    }
+  
+    function editarSerie(btn) {
+      const item = btn.closest("li");
+      const span = item.querySelector("span:first-child");
+      const nova = prompt("Editar série:", span.textContent.replace('= ', ''));
+      if (nova) span.textContent = "= " + nova;
+    }
+  
+    function removerSerie(btn) {
+      const item = btn.closest("li");
+      item.remove();
+    }
+  
+    function filtrarSeries() {
+      const filtro = document.getElementById("filtroSerie").value.toLowerCase();
+      const itens = document.querySelectorAll("#listaSeries li");
+      itens.forEach(li => {
+        const texto = li.textContent.toLowerCase();
+        li.style.display = texto.includes(filtro) ? "" : "none";
+      });
+    }
+  
+<script>
+let seriesGlobais = ["a", "b"];
+
+// Atualiza todos os campos SET 1 com as séries disponíveis
+function atualizarSelectsSeries() {
+  const selects = document.querySelectorAll(".select-serie");
+  selects.forEach(select => {
+    const valorAtual = select.value;
+    select.innerHTML = '<option value="">Selecione</option>';
+    seriesGlobais.forEach(serie => {
+      const opt = document.createElement("option");
+      opt.value = serie;
+      opt.textContent = "= " + serie;
+      if (serie === valorAtual) opt.selected = true;
+      select.appendChild(opt);
+    });
+  });
+}
+
+// Substitui o adicionarSerie para atualizar os selects também
+function adicionarSerie() {
+  const desc = document.getElementById("novaSerie").value.trim();
+  if (!desc || seriesGlobais.includes(desc)) return;
+  seriesGlobais.push(desc);
+  const item = `
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <span>= ${desc}</span>
+      <span>
+        <button class="btn btn-sm btn-outline-secondary me-1" onclick="editarSerie(this)">✏️</button>
+        <button class="btn btn-sm btn-outline-danger" onclick="removerSerie(this, '${desc}')">🗑️</button>
+      </span>
+    </li>`;
+  document.getElementById("listaSeries").insertAdjacentHTML("beforeend", item);
+  document.getElementById("novaSerie").value = "";
+  atualizarSelectsSeries();
+}
+
+function removerSerie(btn, serie) {
+  seriesGlobais = seriesGlobais.filter(s => s !== serie);
+  btn.closest("li").remove();
+  atualizarSelectsSeries();
+}
+
+function editarSerie(btn) {
+  const item = btn.closest("li");
+  const span = item.querySelector("span:first-child");
+  const antigo = span.textContent.replace('= ', '');
+  const nova = prompt("Editar série:", antigo);
+  if (nova && nova !== antigo) {
+    span.textContent = "= " + nova;
+    const idx = seriesGlobais.indexOf(antigo);
+    if (idx > -1) seriesGlobais[idx] = nova;
+    atualizarSelectsSeries();
+  }
+}
+
+document.addEventListener("DOMContentLoaded", atualizarSelectsSeries);
+
+<script>
+function calcularDropSet() {
+  const cargaInicial = parseFloat(document.getElementById("initialLoad").value);
+  const porcentagem = parseFloat(document.getElementById("dropPercent").value);
+  const sets = parseInt(document.getElementById("setCount").value);
+  const resultado = document.getElementById("dropSetList");
+  resultado.innerHTML = "";
+
+  if (isNaN(cargaInicial) || isNaN(porcentagem) || isNaN(sets) || cargaInicial <= 0 || porcentagem <= 0 || sets <= 0) {
+    alert("Preencha todos os campos corretamente!");
+    return;
+  }
+
+  let cargaAtual = cargaInicial;
+  for (let i = 1; i <= sets; i++) {
+    const li = document.createElement("li");
+    li.textContent = `Set ${i}: ${cargaAtual.toFixed(2)} kg`;
+    resultado.appendChild(li);
+    cargaAtual -= (cargaAtual * (porcentagem / 100));
+  }
+
+  document.getElementById("dropResults").classList.remove("d-none");
+}
+</script>
+
+</script>
+
+
+<script>
+function calcularDropSet() {
+  const cargaInicial = parseFloat(document.getElementById("initialLoad").value);
+  const porcentagem = parseFloat(document.getElementById("dropPercent").value);
+  const sets = parseInt(document.getElementById("setCount").value);
+  const resultado = document.getElementById("dropSetList");
+  resultado.innerHTML = "";
+
+  if (isNaN(cargaInicial) || isNaN(porcentagem) || isNaN(sets) || cargaInicial <= 0 || porcentagem <= 0 || sets <= 0) {
+    alert("Preencha todos os campos corretamente!");
+    return;
+  }
+
+  let cargaAtual = cargaInicial;
+  for (let i = 1; i <= sets; i++) {
+    const li = document.createElement("li");
+    li.textContent = `Set ${i}: ${cargaAtual.toFixed(2)} kg`;
+    resultado.appendChild(li);
+    cargaAtual -= (cargaAtual * (porcentagem / 100));
+  }
+
+  document.getElementById("dropResults").classList.remove("d-none");
+}
+</script>
+
+</script>
+  
+            <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#seriesModal" onclick="abrirSeriesModal()">
+              <i class="bi bi-plus-circle"></i>
+              Cadastrar nova série
+            <i class="bi bi-plus-circle"></i>
+            Cadastrar nova rotina
+          </button>
+            
+            <div class="btn-group ms-auto">
+              <button class="btn btn-outline-success">Exportar</button>
+              <button class="btn btn-outline-primary">Importar</button>
+              <button class="btn btn-outline-dark">Imprimir</button>
+            </div>
+          </div>
+  
+          <!-- Tabela de exercícios -->
+          <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Exercício</th>
+                  <th>Carga</th>
+                  <th>Reps</th>
+                  <th>Desejadas</th>
+                  <th>Descanso</th>
+                  <th>Sets</th>
+                  <th>SET 1</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaExercicios">
+                <tr>
+                  <td><input class="form-control" placeholder="Ex: Manguito rotador"></td>
+                  <td><input class="form-control" type="number" placeholder="kg"></td>
+                  <td><input class="form-control" type="number"></td>
+                  <td><input class="form-control" type="number"></td>
+                  <td><select class="form-select select-serie"><option value="">Selecione</option></select></td>
+                  <td><input class="form-control" type="number"></td>
+                  <td><select class="form-select select-serie"><option value="">Selecione</option></select></td>
+                </tr>
+                <!-- Mais linhas via JS -->
+              </tbody>
+            </table>
+            <button class="btn btn-outline-secondary btn-sm mt-2" onclick="adicionarExercicio()">+ Adicionar exercício</button>
+          </div>
+  
+          
+<hr class="my-4">
+<h5 class="text-primary">Cálculo de DropSet</h5>
+<div id="dropsetForm" class="row g-3 mb-3">
+  <div class="col-md-3">
+    <label class="form-label">Carga inicial (kg)</label>
+    <input type="number" class="form-control" id="initialLoad" placeholder="Ex: 100">
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">% de redução</label>
+    <input type="number" class="form-control" id="dropPercent" placeholder="Ex: 20">
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Nº de Sets</label>
+    <input type="number" class="form-control" id="setCount" placeholder="Ex: 3">
+  </div>
+  <div class="col-md-3 d-flex align-items-end">
+    <button class="btn btn-primary w-100" onclick="calcularDropSet()">Calcular</button>
+  </div>
+</div>
+<div id="dropResults" class="alert alert-secondary d-none">
+  <h6>Resultado:</h6>
+  <ul id="dropSetList" class="mb-0"></ul>
+</div>
+
+<!-- Campo de Anotações -->
+          <div class="mt-4">
+            <label for="anotacoes" class="form-label">Anotações</label>
+            <textarea class="form-control" id="anotacoes" rows="3" placeholder="Deixe aqui informações sobre o treino."></textarea>
+          </div>
+  
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+          <button type="submit" class="btn btn-primary">Salvar Treino</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function adicionarExercicio() {
+      const novaLinha = `
+        <tr>
+          <td><input class="form-control" placeholder="Ex: Supino"></td>
+          <td><input class="form-control" type="number" placeholder="kg"></td>
+          <td><input class="form-control" type="number"></td>
+          <td><input class="form-control" type="number"></td>
+          <td><select class="form-select select-serie"><option value="">Selecione</option></select></td>
+          <td><input class="form-control" type="number"></td>
+          <td><select class="form-select select-serie"><option value="">Selecione</option></select></td>
+        </tr>`;
+      document.getElementById('tabelaExercicios').insertAdjacentHTML('beforeend', novaLinha);
+    }
+  
+    function adicionarAbaTreino() {
+      const id = Math.random().toString(36).substring(2, 7);
+      const novaAba = `
+        <li class="nav-item">
+          <a class="nav-link" data-bs-toggle="tab" href="#treino_${id}">Treino ${id}</a>
+        </li>`;
+      document.getElementById('abasTreino').insertAdjacentHTML('beforeend', novaAba);
+    }
+  
+    function abrirSeriesModal() {
+      // Ação que dispara o modal de séries
+      const modal = new bootstrap.Modal(document.getElementById('seriesModal'));
+      modal.show();
+    }
+    
+  
+<script>
+let seriesGlobais = ["a", "b"];
+
+// Atualiza todos os campos SET 1 com as séries disponíveis
+function atualizarSelectsSeries() {
+  const selects = document.querySelectorAll(".select-serie");
+  selects.forEach(select => {
+    const valorAtual = select.value;
+    select.innerHTML = '<option value="">Selecione</option>';
+    seriesGlobais.forEach(serie => {
+      const opt = document.createElement("option");
+      opt.value = serie;
+      opt.textContent = "= " + serie;
+      if (serie === valorAtual) opt.selected = true;
+      select.appendChild(opt);
+    });
+  });
+}
+
+// Substitui o adicionarSerie para atualizar os selects também
+function adicionarSerie() {
+  const desc = document.getElementById("novaSerie").value.trim();
+  if (!desc || seriesGlobais.includes(desc)) return;
+  seriesGlobais.push(desc);
+  const item = `
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <span>= ${desc}</span>
+      <span>
+        <button class="btn btn-sm btn-outline-secondary me-1" onclick="editarSerie(this)">✏️</button>
+        <button class="btn btn-sm btn-outline-danger" onclick="removerSerie(this, '${desc}')">🗑️</button>
+      </span>
+    </li>`;
+  document.getElementById("listaSeries").insertAdjacentHTML("beforeend", item);
+  document.getElementById("novaSerie").value = "";
+  atualizarSelectsSeries();
+}
+
+function removerSerie(btn, serie) {
+  seriesGlobais = seriesGlobais.filter(s => s !== serie);
+  btn.closest("li").remove();
+  atualizarSelectsSeries();
+}
+
+function editarSerie(btn) {
+  const item = btn.closest("li");
+  const span = item.querySelector("span:first-child");
+  const antigo = span.textContent.replace('= ', '');
+  const nova = prompt("Editar série:", antigo);
+  if (nova && nova !== antigo) {
+    span.textContent = "= " + nova;
+    const idx = seriesGlobais.indexOf(antigo);
+    if (idx > -1) seriesGlobais[idx] = nova;
+    atualizarSelectsSeries();
+  }
+}
+
+document.addEventListener("DOMContentLoaded", atualizarSelectsSeries);
+
+<script>
+function calcularDropSet() {
+  const cargaInicial = parseFloat(document.getElementById("initialLoad").value);
+  const porcentagem = parseFloat(document.getElementById("dropPercent").value);
+  const sets = parseInt(document.getElementById("setCount").value);
+  const resultado = document.getElementById("dropSetList");
+  resultado.innerHTML = "";
+
+  if (isNaN(cargaInicial) || isNaN(porcentagem) || isNaN(sets) || cargaInicial <= 0 || porcentagem <= 0 || sets <= 0) {
+    alert("Preencha todos os campos corretamente!");
+    return;
+  }
+
+  let cargaAtual = cargaInicial;
+  for (let i = 1; i <= sets; i++) {
+    const li = document.createElement("li");
+    li.textContent = `Set ${i}: ${cargaAtual.toFixed(2)} kg`;
+    resultado.appendChild(li);
+    cargaAtual -= (cargaAtual * (porcentagem / 100));
+  }
+
+  document.getElementById("dropResults").classList.remove("d-none");
+}
+</script>
+
+</script>
+
+
+<script>
+function calcularDropSet() {
+  const cargaInicial = parseFloat(document.getElementById("initialLoad").value);
+  const porcentagem = parseFloat(document.getElementById("dropPercent").value);
+  const sets = parseInt(document.getElementById("setCount").value);
+  const resultado = document.getElementById("dropSetList");
+  resultado.innerHTML = "";
+
+  if (isNaN(cargaInicial) || isNaN(porcentagem) || isNaN(sets) || cargaInicial <= 0 || porcentagem <= 0 || sets <= 0) {
+    alert("Preencha todos os campos corretamente!");
+    return;
+  }
+
+  let cargaAtual = cargaInicial;
+  for (let i = 1; i <= sets; i++) {
+    const li = document.createElement("li");
+    li.textContent = `Set ${i}: ${cargaAtual.toFixed(2)} kg`;
+    resultado.appendChild(li);
+    cargaAtual -= (cargaAtual * (porcentagem / 100));
+  }
+
+  document.getElementById("dropResults").classList.remove("d-none");
+}
+</script>
+
+</script>
