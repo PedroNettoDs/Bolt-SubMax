@@ -7,7 +7,8 @@ from django.core.paginator import Paginator
 from Pages.models import (
     Exercicio, Treino, Aluno, ExercicioTreino,
     TreinoPredefinido, TreinoPredefExercicio,
-    TreinoAluno, TreinoAlunoExercicio
+    TreinoAluno, TreinoAlunoExercicio,
+    GrupoMuscular,
 )
 import json
 from datetime import date
@@ -75,22 +76,26 @@ def cadastrar_exercicio(request):
     if request.method == 'POST':
         nome = request.POST.get('nome', '').strip()
         descricao = request.POST.get('descricao', '').strip()
-        categoria = request.POST.get('categoria', '').strip()
-        grupo_muscular = request.POST.getlist('grupo_muscular')
-        
-        if not nome or not categoria or not grupo_muscular:
+        grupo_muscular_id = request.POST.get('grupo_muscular', '').strip()
+        secundario_id = request.POST.get('grupo_muscular_secundario', '').strip()
+
+        if not nome or not grupo_muscular_id:
             messages.error(request, "Preencha todos os campos obrigatórios.")
             return redirect('treinos')
-        
-        # Converte lista para string separada por vírgulas
-        grupo_muscular_str = grupo_muscular[0] if len(grupo_muscular) == 1 else grupo_muscular[0]
-        
+
+        try:
+            grupo_principal = GrupoMuscular.objects.get(id=grupo_muscular_id)
+            grupo_sec = GrupoMuscular.objects.get(id=secundario_id) if secundario_id else None
+        except GrupoMuscular.DoesNotExist:
+            messages.error(request, "Grupo muscular inválido.")
+            return redirect('treinos')
+
         try:
             exercicio = Exercicio.objects.create(
                 nome=nome,
                 descricao=descricao,
-                categoria=categoria,
-                grupo_muscular=grupo_muscular_str
+                grupo_muscular=grupo_principal,
+                grupo_muscular_secundario=grupo_sec,
             )
             messages.success(request, f"Exercício '{nome}' cadastrado com sucesso.")
             
@@ -102,8 +107,7 @@ def cadastrar_exercicio(request):
                         'id': exercicio.id,
                         'nome': exercicio.nome,
                         'descricao': exercicio.descricao,
-                        'categoria': exercicio.categoria,
-                        'grupo_muscular': exercicio.grupo_muscular
+                        'grupo_muscular': exercicio.grupo_muscular.id
                     }
                 })
                 
@@ -136,14 +140,13 @@ def exercicios_json(request):
         data = []
         for e in qs:
             # Pega o primeiro grupo muscular se houver múltiplos
-            grupo_principal = e.grupo_muscular.split(',')[0] if e.grupo_muscular else ''
+            grupo_principal = e.grupo_muscular.id if e.grupo_muscular else ''
             
             data.append({
                 'id': e.id,
                 'text': e.nome,
                 'nome': e.nome,
                 'descricao': e.descricao or '',
-                'categoria': e.categoria or '',
                 'grupo_muscular': grupo_principal
             })
         
