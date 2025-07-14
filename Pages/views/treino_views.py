@@ -76,8 +76,14 @@ def cadastrar_exercicio(request):
     if request.method == 'POST':
         nome = request.POST.get('nome', '').strip()
         descricao = request.POST.get('descricao', '').strip()
-        grupo_muscular_id = request.POST.get('grupo_muscular', '').strip()
-        secundario_id = request.POST.get('grupo_muscular_secundario', '').strip()
+
+        # Permite selecionar até dois grupos musculares na tela de cadastro
+        grupos_selecionados = request.POST.getlist('grupo_muscular')
+        grupo_muscular_id = grupos_selecionados[0].strip() if grupos_selecionados else ''
+        if len(grupos_selecionados) > 1:
+            secundario_id = grupos_selecionados[1].strip()
+        else:
+            secundario_id = request.POST.get('grupo_muscular_secundario', '').strip()
 
         if not nome or not grupo_muscular_id:
             messages.error(request, "Preencha todos os campos obrigatórios.")
