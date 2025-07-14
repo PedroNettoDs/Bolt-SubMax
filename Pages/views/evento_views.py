@@ -1,7 +1,10 @@
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 from django.db import OperationalError
 from Pages.models import Evento, Plano, Aluno
+from Pages.utils.db import safe_all, safe_count
+from Pages.serializers import EventoSerializer
 
 # Exibe a página principal com eventos e estatísticas
 def home_view(request):
@@ -18,34 +21,20 @@ def home_view(request):
         return redirect('home')
 
     # Busca eventos
-    try:
-        eventos = Evento.objects.all()
-    except OperationalError:
-        eventos = []
+    eventos = safe_all(Evento)
 
     # Busca planos
-    try:
-        planos = Plano.objects.all()
-    except OperationalError:
-        planos = []
+    planos = safe_all(Plano)
 
     # Conta alunos e ativos apenas se tabela existir
-    try:
-        total_alunos = Aluno.objects.count()
-    except OperationalError:
-        total_alunos = 0
+    total_alunos = safe_count(Aluno)
 
     ativos = 0
-    try:
-        if total_alunos > 0:
-            if 'ativo' in [f.name for f in Aluno._meta.get_fields()]:
-                ativos = Aluno.objects.filter(ativo=True).count()
-            else:
-                ativos = total_alunos
+    if total_alunos > 0:
+        if 'ativo' in [f.name for f in Aluno._meta.get_fields()]:
+            ativos = safe_count(Aluno.objects.filter(ativo=True))
         else:
-            ativos = 0
-    except OperationalError:
-        ativos = 0
+            ativos = total_alunos
 
     percent = round((ativos / total_alunos) * 100) if total_alunos > 0 else 0
 
@@ -58,14 +47,8 @@ def home_view(request):
     })
 
 # Retorna eventos em formato JSON para o calendário
+@api_view(["GET"])
 def eventos_json(request):
-    try:
-        eventos = Evento.objects.all()
-        data = [{
-            "title": evento.titulo,
-            "start": evento.data.isoformat(),
-            "description": evento.descricao,
-        } for evento in eventos]
-    except OperationalError:
-        data = []
-    return JsonResponse(data, safe=False)
+    eventos = safe_all(Evento)
+    serializer = EventoSerializer(eventos, many=True)
+    return Response(serializer.data)

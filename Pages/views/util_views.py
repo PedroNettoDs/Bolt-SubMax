@@ -67,10 +67,6 @@ def validar_cpf(cpf):
 
     return True
 
-# Função para remover mensagens pendentes do request
-def remover_messages(request):
-    list(messages.get_messages(request))  # força o esvaziamento
-
 # Processa a alteração de senha no primeiro acesso
 
 # Processa a alteração de senha no primeiro acesso via AJAX
