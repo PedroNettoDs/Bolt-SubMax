@@ -365,7 +365,6 @@ def treino_exercicios(request, treino_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-# Criar treino a partir de um template
 @csrf_exempt
 @require_http_methods(["POST"])
 def criar_treino_de_template(request):
