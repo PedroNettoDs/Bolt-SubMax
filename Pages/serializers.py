@@ -1,41 +1,41 @@
 from rest_framework import serializers
-from .models import Aluno
+from .models import (
+    Aluno,
+    Avaliacao,
+    Exercicio,
+    GrupoMuscular,
+    Organizacao,
+    Evento,
+)
+
 
 class AlunoSerializer(serializers.ModelSerializer):
-    """
-    Serializer para o modelo Aluno.
-    Inclui todos os campos do modelo Aluno.
-    """
+    """Serializer para o modelo Aluno."""
+
     class Meta:
         model = Aluno
-        fields = '__all__' # Inclui todos os campos do modelo Aluno
+        fields = "__all__"
 
-from .models import Avaliacao
 
 class AvaliacaoSerializer(serializers.ModelSerializer):
-    """
-    Serializer para o modelo Avaliacao.
-    Inclui todos os campos do modelo Avaliacao.
-    """
+    """Serializer para o modelo Avaliacao."""
+
     class Meta:
         model = Avaliacao
-        fields = '__all__'  # Inclui todos os campos do modelo Avaliacao
+        fields = "__all__"
 
-from .models import Exercicio, GrupoMuscular
 
 class ExercicioSerializer(serializers.ModelSerializer):
-    """
-    Serializer para o modelo Exercicio.
-    Inclui todos os campos do modelo Exercicio.
-    """
+    """Serializer para o modelo Exercicio."""
+
     grupo_muscular = serializers.SlugRelatedField(
         slug_field="id",
-        queryset=GrupoMuscular.objects.all()
+        queryset=GrupoMuscular.objects.all(),
     )
     grupos_musculares_secundarios = serializers.SlugRelatedField(
         many=True,
         slug_field="id",
-        queryset=GrupoMuscular.objects.all()
+        queryset=GrupoMuscular.objects.all(),
     )
 
     class Meta:
@@ -48,13 +48,18 @@ class ExercicioSerializer(serializers.ModelSerializer):
             "grupos_musculares_secundarios",
         ]
 
-from .models import Organizacao
 
 class OrganizacaoSerializer(serializers.ModelSerializer):
-    """
-    Serializer para o modelo Organizacao.
-    Inclui todos os campos do modelo Organizacao.
-    """
+    """Serializer para o modelo Organizacao."""
+
     class Meta:
         model = Organizacao
-        fields = '__all__'  
+        fields = "__all__"
+
+
+class EventoSerializer(serializers.ModelSerializer):
+    """Serializer para o modelo Evento."""
+
+    class Meta:
+        model = Evento
+        fields = ["titulo", "descricao", "data"]

@@ -64,9 +64,3 @@ def logout_usuario(request):
     logout(request)
     return redirect("login")
 
-def remover_messages(request):
-    # Remove todas as mensagens pendentes
-    storage = messages.get_messages(request)
-    for _ in storage:
-        pass  # apenas iterar limpa a fila
-    return redirect("home")
