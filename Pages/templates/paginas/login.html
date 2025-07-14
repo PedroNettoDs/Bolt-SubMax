@@ -125,7 +125,23 @@
         body: JSON.stringify({ cpf, password })
       });
 
-      const data = await response.json();
+      let data;
+      try {
+        if (response.ok && response.headers.get("Content-Type")?.includes("application/json")) {
+          data = await response.json();
+        } else {
+          throw new Error("Invalid response");
+        }
+      } catch (error) {
+        const form = document.getElementById("formLogin");
+        const alertHTML = `
+          <div class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
+            Ocorreu um erro inesperado. Tente novamente.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>`;
+        form.insertAdjacentHTML("beforebegin", alertHTML);
+        return;
+      }
 
        if (data.success) {
           window.location.href = data.redirect_url;
