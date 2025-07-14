@@ -25,24 +25,37 @@
             <textarea class="form-control" id="exercicioDescricao" name="descricao" placeholder="Descreva o exercício" rows="2"></textarea>
           </div>
 
-          <!-- Campo: Categoria -->
-          <div class="mb-3">
-            <label class="form-label" for="categoria">Categoria</label>
-            <select class="form-select" id="categoria" name="categoria" required>
-              <option value="aquecimento">Aquecimento</option>
-              <option value="forca">Força</option>
-              <option value="resistencia">Resistência</option>
-              <option value="flexibilidade">Flexibilidade</option>
-              <option value="potencia">Potência</option>
-              <option value="agilidade">Agilidade</option>
-              <option value="equilibrio">Equilíbrio</option>
-            </select>
-          </div>
-
           <!-- Campo: Grupo Muscular -->
           <div class="mb-3">
             <label for="grupo_muscular" class="form-label">Grupo Muscular</label>
-            <select multiple class="form-select" id="grupo_muscular" name="grupo_muscular" required>
+            <select class="form-select" id="grupo_muscular" name="grupo_muscular" required>
+              <option value="trapezius">Trapézio</option>
+              <option value="chest">Peitoral</option>
+              <option value="back">Costas</option>
+              <option value="shoulders">Ombros</option>
+              <option value="biceps">Bíceps</option>
+              <option value="triceps">Tríceps</option>
+              <option value="brachialis">Braquial</option>
+              <option value="forearms">Antebraços</option>
+              <option value="abs">Abdômen</option>
+              <option value="obliques">Oblíquos</option>
+              <option value="lombar">Lombar</option>
+              <option value="iliopsoas">Iliopsoas</option>
+              <option value="glutes">Glúteos</option>
+              <option value="quadriceps">Quadríceps</option>
+              <option value="hamstrings">Posterior de Coxa</option>
+              <option value="calves">Panturrilhas</option>
+              <option value="adductors">Adutores</option>
+              <option value="abductors">Abdutores</option>
+              <option value="cardio">Cardio</option>
+            </select>
+          </div>
+
+          <!-- Campo: Grupo Muscular Secundário -->
+          <div class="mb-3">
+            <label for="grupo_muscular_secundario" class="form-label">Grupo Muscular Secundário</label>
+            <select class="form-select" id="grupo_muscular_secundario" name="grupo_muscular_secundario">
+              <option value="" selected>-- Opcional --</option>
               <option value="trapezius">Trapézio</option>
               <option value="chest">Peitoral</option>
               <option value="back">Costas</option>

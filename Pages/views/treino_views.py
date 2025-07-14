@@ -6,8 +6,7 @@ from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator
 from Pages.models import (
     Exercicio, Treino, Aluno, ExercicioTreino,
-    TreinoPredefinido, TreinoPredefExercicio,
-    TreinoAluno, TreinoAlunoExercicio
+    TreinoAluno, TreinoAlunoExercicio, GrupoMuscular
 )
 import json
 from datetime import date
@@ -28,7 +27,7 @@ def treinos_view(request):
         exercicios_qs = exercicios_qs.filter(nome__icontains=busca_exercicio)
 
     # Consulta Treinos com filtro
-    treinos_qs = TreinoPredefinido.objects.all()
+    treinos_qs = Treino.objects.all()
     if busca_treino:
         treinos_qs = treinos_qs.filter(nome__icontains=busca_treino)
 
@@ -75,22 +74,25 @@ def cadastrar_exercicio(request):
     if request.method == 'POST':
         nome = request.POST.get('nome', '').strip()
         descricao = request.POST.get('descricao', '').strip()
-        categoria = request.POST.get('categoria', '').strip()
-        grupo_muscular = request.POST.getlist('grupo_muscular')
-        
-        if not nome or not categoria or not grupo_muscular:
+        grupo_muscular_id = request.POST.get('grupo_muscular', '').strip()
+        secundario_id = request.POST.get('grupo_muscular_secundario', '').strip()
+
+        if not nome or not grupo_muscular_id:
             messages.error(request, "Preencha todos os campos obrigatórios.")
             return redirect('treinos')
-        
-        # Converte lista para string separada por vírgulas
-        grupo_muscular_str = grupo_muscular[0] if len(grupo_muscular) == 1 else grupo_muscular[0]
+
+        try:
+            grupo_principal = GrupoMuscular.objects.get(id=grupo_muscular_id)
+            grupo_sec = None
+            if secundario_id:
+                grupo_sec = GrupoMuscular.objects.get(id=secundario_id)
         
         try:
             exercicio = Exercicio.objects.create(
                 nome=nome,
                 descricao=descricao,
-                categoria=categoria,
-                grupo_muscular=grupo_muscular_str
+                grupo_muscular=grupo_principal,
+                grupo_muscular_secundario=grupo_sec,
             )
             messages.success(request, f"Exercício '{nome}' cadastrado com sucesso.")
             
@@ -102,8 +104,8 @@ def cadastrar_exercicio(request):
                         'id': exercicio.id,
                         'nome': exercicio.nome,
                         'descricao': exercicio.descricao,
-                        'categoria': exercicio.categoria,
-                        'grupo_muscular': exercicio.grupo_muscular
+                        'grupo_muscular': exercicio.grupo_muscular.id,
+                        'grupo_muscular_secundario': exercicio.grupo_muscular_secundario.id if exercicio.grupo_muscular_secundario else None,
                     }
                 })
                 
@@ -135,16 +137,13 @@ def exercicios_json(request):
         
         data = []
         for e in qs:
-            # Pega o primeiro grupo muscular se houver múltiplos
-            grupo_principal = e.grupo_muscular.split(',')[0] if e.grupo_muscular else ''
-            
             data.append({
                 'id': e.id,
                 'text': e.nome,
                 'nome': e.nome,
                 'descricao': e.descricao or '',
-                'categoria': e.categoria or '',
-                'grupo_muscular': grupo_principal
+                'grupo_muscular': e.grupo_muscular.id,
+                'grupo_muscular_secundario': e.grupo_muscular_secundario.id if e.grupo_muscular_secundario else None,
             })
         
         return JsonResponse({'results': data}, safe=False)
@@ -293,7 +292,7 @@ def treinos_aluno(request, aluno_id):
         # Preenche estatísticas com dados reais
         for treino_info in treinos_com_exercicios:
             for exercicio in treino_info['exercicios']:
-                grupo = exercicio.exercicio.grupo_muscular
+                grupo = exercicio.exercicio.grupo_muscular.id
                 if 'chest' in grupo:
                     grupos_stats['peitoral'] += 1
                 elif 'back' in grupo:
@@ -351,7 +350,7 @@ def treino_exercicios(request, treino_id):
                 'id': ex.id,
                 'exercicio_id': ex.exercicio.id,
                 'nome': ex.exercicio.nome,
-                'grupo_muscular': ex.exercicio.grupo_muscular,
+                'grupo_muscular': ex.exercicio.grupo_muscular.id,
                 'ordem': ex.ordem,
                 'series': ex.series,
                 'repeticoes': ex.repeticoes,
@@ -366,56 +365,3 @@ def treino_exercicios(request, treino_id):
         return JsonResponse({'error': str(e)}, status=500)
 
 # Criar treino a partir de um template
-@csrf_exempt
-@require_http_methods(["POST"])
-def criar_treino_de_template(request):
-    """
-    Cria um treino para um aluno a partir de um template predefinido.
-    """
-    try:
-        dados = json.loads(request.body)
-        
-        aluno_id = dados.get('aluno_id')
-        template_id = dados.get('template_id')
-        
-        if not aluno_id or not template_id:
-            return JsonResponse({'success': False, 'message': 'Aluno e template são obrigatórios'})
-        
-        aluno = get_object_or_404(Aluno, id=aluno_id)
-        template = get_object_or_404(TreinoPredefinido, id=template_id)
-        
-        # Cria o treino do aluno
-        treino_aluno = TreinoAluno.objects.create(
-            aluno=aluno,
-            nome=template.nome,
-            data_inicio=date.today(),
-            template_origem=template,
-            observacoes=template.descricao
-        )
-        
-        # Copia os exercícios do template
-        exercicios_template = TreinoPredefExercicio.objects.filter(template=template).order_by('ordem')
-        
-        for ex_template in exercicios_template:
-            TreinoAlunoExercicio.objects.create(
-                treino=treino_aluno,
-                exercicio=ex_template.exercicio,
-                ordem=ex_template.ordem,
-                series=ex_template.series,
-                repeticoes=ex_template.repeticoes,
-                carga=ex_template.carga,
-                intervalo_seg=ex_template.intervalo_seg,
-                metodo=ex_template.metodo,
-                notas=ex_template.notas
-            )
-        
-        return JsonResponse({
-            'success': True,
-            'message': f'Treino "{template.nome}" criado com sucesso para {aluno.nome}',
-            'treino_id': treino_aluno.id
-        })
-        
-    except json.JSONDecodeError:
-        return JsonResponse({'success': False, 'message': 'Dados JSON inválidos'})
-    except Exception as e:
-        return JsonResponse({'success': False, 'message': f'Erro interno: {str(e)}'})

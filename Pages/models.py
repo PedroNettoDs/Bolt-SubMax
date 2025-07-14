@@ -130,39 +130,6 @@ class Exercicio(models.Model):
 
 # ===== MODELOS DE TREINO (NOVA ESTRUTURA) =====
 
-class TreinoPredefinido(models.Model):
-    """
-    Templates de treinos que podem ser reutilizados para vários alunos
-    """
-    nome = models.CharField(max_length=120)
-    objetivo = models.CharField(max_length=60, blank=True)
-    descricao = models.TextField(blank=True)
-    criado_em = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.nome
-
-class TreinoPredefExercicio(models.Model):
-    """
-    Tabela ponte entre TreinoPredefinido e Exercicio
-    Define quais exercícios compõem cada template de treino
-    """
-    template = models.ForeignKey(TreinoPredefinido, on_delete=models.CASCADE, related_name='exercicios')
-    exercicio = models.ForeignKey(Exercicio, on_delete=models.CASCADE)
-    ordem = models.PositiveIntegerField(default=0)
-    series = models.PositiveIntegerField(null=True, blank=True)
-    repeticoes = models.PositiveIntegerField(null=True, blank=True)
-    carga = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
-    intervalo_seg = models.PositiveIntegerField(null=True, blank=True)
-    metodo = models.CharField(max_length=30, blank=True)
-    notas = models.TextField(blank=True)
-
-    class Meta:
-        ordering = ['ordem']
-        unique_together = ['template', 'exercicio', 'ordem']
-
-    def __str__(self):
-        return f"{self.exercicio.nome} - {self.template.nome}"
 
 class TreinoAluno(models.Model):
     """
@@ -173,8 +140,13 @@ class TreinoAluno(models.Model):
     nome = models.CharField(max_length=120)
     data_inicio = models.DateField(default=date.today)
     data_fim = models.DateField(null=True, blank=True)
-    template_origem = models.ForeignKey(TreinoPredefinido, on_delete=models.SET_NULL, null=True, blank=True)
     observacoes = models.TextField(blank=True)
+    exercicios = models.ManyToManyField(
+        Exercicio,
+        through='TreinoAlunoExercicio',
+        related_name='treinos',
+        blank=True,
+    )
     criado_em = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

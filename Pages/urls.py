@@ -35,7 +35,6 @@ urlpatterns = [
     path('salvar_treino/', salvar_treino, name='salvar_treino'),
     path('aluno/<int:aluno_id>/treinos/', treinos_aluno, name='treinos_aluno'),
     path('api/treinos/<int:treino_id>/exercicios/', treino_exercicios, name='treino_exercicios'),
-    path('api/criar-treino-de-template/', criar_treino_de_template, name='criar_treino_de_template'),
     path('aluno/<int:aluno_id>/nova-rotina/', cadastrar_treino, name='nova_rotina'),
 
     # Eventos
