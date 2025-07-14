@@ -4,8 +4,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import JsonResponse
+from rest_framework.decorators import api_view
 import re, json
 
+@api_view(["GET", "POST"])
 def login_usuario(request):
     if request.method == "POST":
         # Detecta se é JSON (AJAX) ou form HTML tradicional
