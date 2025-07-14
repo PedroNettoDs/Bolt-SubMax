@@ -42,7 +42,15 @@
           <!-- Campo: Grupo Muscular -->
           <div class="mb-3">
             <label for="grupo_muscular" class="form-label">Grupo Muscular</label>
-            <select multiple class="form-select" id="grupo_muscular" name="grupo_muscular" required>
+            <select
+              multiple
+              class="form-select selectpicker"
+              id="grupo_muscular"
+              name="grupo_muscular"
+              data-live-search="true"
+              data-actions-box="true"
+              data-max-options="2"
+              required>
               <option value="trapezius">Trapézio</option>
               <option value="chest">Peitoral</option>
               <option value="back">Costas</option>
@@ -78,6 +86,10 @@
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('formCadastrarExercicio');
+    const grupoSelect = $('#grupo_muscular');
+
+    // Inicializa plugin bootstrap-select
+    grupoSelect.selectpicker();
 
     if (form) {
       form.addEventListener('submit', function (e) {
@@ -87,9 +99,15 @@
         let primeiroInvalido = null;
 
         camposObrigatorios.forEach(campo => {
-          const valor = campo.value.trim();
+          let valor;
+          if (campo.tagName === 'SELECT' && campo.multiple) {
+            valor = $(campo).val();
+          } else {
+            valor = campo.value.trim();
+          }
 
-          if (!valor) {
+          const vazio = !valor || (Array.isArray(valor) && valor.length === 0);
+          if (vazio) {
             campo.classList.add('is-invalid');
             campo.classList.remove('is-valid');
             formularioValido = false;
@@ -104,12 +122,16 @@
           // Corrige em tempo real
           const evento = campo.tagName === 'SELECT' ? 'change' : 'input';
           campo.addEventListener(evento, () => {
-            if (campo.value.trim()) {
-              campo.classList.remove('is-invalid');
-              campo.classList.add('is-valid');
+            let val;
+            if (campo.tagName === 'SELECT' && campo.multiple) {
+              val = $(campo).val();
+              const isEmpty = !val || val.length === 0;
+              campo.classList.toggle('is-invalid', isEmpty);
+              campo.classList.toggle('is-valid', !isEmpty);
             } else {
-              campo.classList.remove('is-valid');
-              campo.classList.add('is-invalid');
+              const texto = campo.value.trim();
+              campo.classList.toggle('is-invalid', !texto);
+              campo.classList.toggle('is-valid', !!texto);
             }
           });
         });
@@ -120,7 +142,7 @@
         }
       });
     }
-    
+
     // Limpar formulário quando modal for fechado
     const modal = document.getElementById('modalCadExercicio');
     if (modal) {
@@ -129,6 +151,7 @@
         form.querySelectorAll('.is-valid, .is-invalid').forEach(el => {
           el.classList.remove('is-valid', 'is-invalid');
         });
+        grupoSelect.selectpicker('deselectAll');
       });
     }
   });
