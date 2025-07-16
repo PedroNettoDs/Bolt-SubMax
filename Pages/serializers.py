@@ -72,12 +72,12 @@ class ExercicioSerializer(serializers.ModelSerializer):
 # ===== TREINO ALUNO =====
 
 class TreinoAlunoSerializer(serializers.ModelSerializer):
-    """
-    Serializer para TreinoAluno com campo JSON 'exercicios'.
-    """
+    exercicios = serializers.JSONField()
+
     class Meta:
         model = TreinoAluno
-        fields = '__all__'
+        fields = ['aluno', 'nome', 'data_inicio', 'data_fim', 'observacoes', 'exercicios']
+        read_only_fields = ['criado_em']
 
 
 # ===== AVALIAÇÃO FÍSICA =====

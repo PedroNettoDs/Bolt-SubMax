@@ -67,3 +67,8 @@ urlpatterns = [
 ]
 
 
+from .views.treino_views import TreinoAlunoListCreateAPIView # Assumindo a view em treino_views
+
+urlpatterns.append(
+    path("api/treinos-aluno/", TreinoAlunoListCreateAPIView.as_view(), name="treino-aluno-list-create")
+)

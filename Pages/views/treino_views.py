@@ -1,16 +1,17 @@
+import json
 from datetime import date
+
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.shortcuts import get_object_or_404, render
-from Pages.models import (Exercicio, Aluno, TreinoAluno, TreinoAluno, GrupoMuscular,)
-import json
-from rest_framework import viewsets, status
+
+from rest_framework import viewsets, status, generics
 from rest_framework.response import Response
-from Pages.models import TreinoAluno, TreinoAluno, Aluno
-from Pages.serializers import TreinoAlunoSerializer
 from rest_framework.decorators import action
-from django.shortcuts import get_object_or_404
+
+from Pages.serializers import TreinoAlunoSerializer
+from Pages.models import (Exercicio, Aluno, TreinoAluno, TreinoAluno, GrupoMuscular,)
 
 
 def treinos_view(request):
@@ -226,3 +227,11 @@ class TreinoAlunoViewSet(viewsets.ViewSet):
         ]
         return Response(data)
 
+class TreinoAlunoListCreateAPIView(generics.ListCreateAPIView):
+    queryset = TreinoAluno.objects.all()
+    serializer_class = TreinoAlunoSerializer
+
+    def perform_create(self, serializer):
+        # Opcional: Adicionar lógica personalizada antes de salvar, como associar o aluno logado
+        # Exemplo: serializer.save(aluno=self.request.user.aluno_perfil)
+        serializer.save()
