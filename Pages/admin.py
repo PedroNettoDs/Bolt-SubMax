@@ -1,23 +1,6 @@
 from django.contrib import admin
 from .models import Evento, Aluno, Exercicio, Plano, Avaliacao
-from .models import TreinoPredefinido, TreinoPredefExercicio, TreinoAluno, TreinoAlunoExercicio
-
-# ===================== 1. Ajusta Inlines que usam autocomplete =====================
-
-class TreinoPredefExercicioInline(admin.TabularInline):
-    model = TreinoPredefExercicio
-    extra = 1
-    autocomplete_fields = ['exercicio']
-    # 🔍 Permite pesquisar pelo nome do exercício
-    search_fields = ('id', 'exercicio__nome')
-
-
-class TreinoAlunoExercicioInline(admin.TabularInline):
-    model = TreinoAlunoExercicio
-    extra = 1
-    autocomplete_fields = ['exercicio']
-    # 🔍 Mesmo critério de busca
-    search_fields = ('id', 'exercicio__nome')
+from .models import *
 
 
 # ===================== 2. Cria admins com busca para Aluno/Exercicio ===============
@@ -36,25 +19,6 @@ class ExercicioAdmin(admin.ModelAdmin):
     search_fields = ('id', 'nome', 'grupo_muscular')
     list_display = ('nome', 'grupo_muscular')
     list_filter = ('nome', 'grupo_muscular')
-
-
-# ===================== 3. Admins para modelos de treino ===============================
-
-@admin.register(TreinoPredefinido)
-class TreinoPredefinidoAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'objetivo', 'criado_em')
-    search_fields = ('nome', 'objetivo')
-    list_filter = ('objetivo', 'criado_em')
-    inlines = [TreinoPredefExercicioInline]
-
-
-@admin.register(TreinoAluno)
-class TreinoAlunoAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'aluno', 'data_inicio', 'data_fim', 'criado_em')
-    search_fields = ('nome', 'aluno__nome')
-    list_filter = ('data_inicio', 'criado_em')
-    autocomplete_fields = ['aluno', 'template_origem']
-    inlines = [TreinoAlunoExercicioInline]
 
 
 # ===================== 4. Registra modelos básicos ===============================

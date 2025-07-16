@@ -5,61 +5,84 @@ from .models import (
     Exercicio,
     GrupoMuscular,
     Organizacao,
+    Plano,
     Evento,
+    TreinoAluno,
+    PerfilUsuario,
 )
 
 
-class AlunoSerializer(serializers.ModelSerializer):
-    """Serializer para o modelo Aluno."""
+# ===== ALUNO E ORGANIZAÇÃO =====
 
+class AlunoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Aluno
-        fields = "__all__"
+        fields = '__all__'
 
 
-class AvaliacaoSerializer(serializers.ModelSerializer):
-    """Serializer para o modelo Avaliacao."""
-
+class OrganizacaoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Avaliacao
-        fields = "__all__"
+        model = Organizacao
+        fields = '__all__'
+
+
+class PlanoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Plano
+        fields = '__all__'
+
+
+class EventoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Evento
+        fields = '__all__'
+
+
+class PerfilUsuarioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PerfilUsuario
+        fields = '__all__'
+
+
+# ===== GRUPOS E EXERCÍCIOS =====
+
+class GrupoMuscularSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GrupoMuscular
+        fields = '__all__'
 
 
 class ExercicioSerializer(serializers.ModelSerializer):
-    """Serializer para o modelo Exercicio."""
-
     grupo_muscular = serializers.SlugRelatedField(
         slug_field="id",
-        queryset=GrupoMuscular.objects.all(),
+        queryset=GrupoMuscular.objects.all()
     )
-    grupos_musculares_secundarios = serializers.SlugRelatedField(
-        many=True,
+    grupo_muscular_secundario = serializers.SlugRelatedField(
         slug_field="id",
         queryset=GrupoMuscular.objects.all(),
+        required=False,
+        allow_null=True
     )
 
     class Meta:
         model = Exercicio
-        fields = [
-            "id",
-            "nome",
-            "descricao",
-            "grupo_muscular",
-            "grupos_musculares_secundarios",
-        ]
+        fields = '__all__'
 
 
-class OrganizacaoSerializer(serializers.ModelSerializer):
-    """Serializer para o modelo Organizacao."""
+# ===== TREINO ALUNO =====
 
+class TreinoAlunoSerializer(serializers.ModelSerializer):
+    """
+    Serializer para TreinoAluno com campo JSON 'exercicios'.
+    """
     class Meta:
-        model = Organizacao
-        fields = "__all__"
+        model = TreinoAluno
+        fields = '__all__'
 
 
-class EventoSerializer(serializers.ModelSerializer):
-    """Serializer para o modelo Evento."""
+# ===== AVALIAÇÃO FÍSICA =====
 
+class AvaliacaoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Evento
-        fields = ["titulo", "descricao", "data"]
+        model = Avaliacao
+        fields = '__all__'

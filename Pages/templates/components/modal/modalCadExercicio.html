@@ -1,74 +1,52 @@
-<!-- Modal para cadastro de  exercício -->
+<!-- Modal para cadastro de exercício -->
 <div class="modal fade" id="modalCadExercicio" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
-      <!-- Formulário com POST e action definido -->
-      <form id="formCadastrarExercicio" method="post" action="{% url 'cadastrar_exercicio' %}">
+      <!-- Removido o action para evitar redirecionamento -->
+      <form id="formCadastrarExercicio" method="post" class="needs-validation" novalidate>
         {% csrf_token %}
         <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title" id="modalCadExercicioTitulo">
+          <h5 class="modal-title">
             <i class="bi bi-plus-circle me-2"></i>Cadastrar Exercício
           </h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
 
         <div class="modal-body">
-          <!-- Campo: Nome do Exercício -->
+          <!-- Campo: Nome -->
           <div class="mb-3">
-            <label class="form-label" for="exercicioNome">Nome do Exercício</label>
+            <label for="exercicioNome" class="form-label">Nome do Exercício <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="exercicioNome" name="nome" placeholder="Ex: Agachamento" required>
+            <div class="invalid-feedback">Informe o nome do exercício.</div>
           </div>
 
           <!-- Campo: Descrição -->
           <div class="mb-3">
-            <label class="form-label" for="exercicioDescricao">Descrição</label>
+            <label for="exercicioDescricao" class="form-label">Descrição</label>
             <textarea class="form-control" id="exercicioDescricao" name="descricao" placeholder="Descreva o exercício" rows="2"></textarea>
           </div>
 
-          <!-- Campo: Categoria -->
+          <!-- Campo: Grupo Muscular Principal -->
           <div class="mb-3">
-            <label class="form-label" for="categoria">Categoria</label>
-            <select class="form-select" id="categoria" name="categoria" required>
-              <option value="aquecimento">Aquecimento</option>
-              <option value="forca">Força</option>
-              <option value="resistencia">Resistência</option>
-              <option value="flexibilidade">Flexibilidade</option>
-              <option value="potencia">Potência</option>
-              <option value="agilidade">Agilidade</option>
-              <option value="equilibrio">Equilíbrio</option>
+            <label for="grupoMuscularSelect" class="form-label">Grupo Muscular Principal <span class="text-danger">*</span></label>
+            <select id="grupoMuscularSelect" name="grupo_muscular" class="form-select" required>
+              <option selected disabled value="">Selecione o grupo principal</option>
             </select>
+            <div class="invalid-feedback">Por favor, selecione o grupo principal.</div>
           </div>
 
-          <!-- Campo: Grupo Muscular -->
+          <!-- Campo: Grupo Muscular Secundário -->
           <div class="mb-3">
-            <label for="grupo_muscular" class="form-label">Grupo Muscular</label>
-            <select multiple class="form-select" id="grupo_muscular" name="grupo_muscular" required>
-              <option value="trapezius">Trapézio</option>
-              <option value="chest">Peitoral</option>
-              <option value="back">Costas</option>
-              <option value="shoulders">Ombros</option>
-              <option value="biceps">Bíceps</option>
-              <option value="triceps">Tríceps</option>
-              <option value="brachialis">Braquial</option>
-              <option value="forearms">Antebraços</option>
-              <option value="abs">Abdômen</option>
-              <option value="obliques">Oblíquos</option>
-              <option value="lombar">Lombar</option>
-              <option value="iliopsoas">Iliopsoas</option>
-              <option value="glutes">Glúteos</option>
-              <option value="quadriceps">Quadríceps</option>
-              <option value="hamstrings">Posterior de Coxa</option>
-              <option value="calves">Panturrilhas</option>
-              <option value="adductors">Adutores</option>
-              <option value="abductors">Abdutores</option>
-              <option value="cardio">Cardio</option>
+            <label for="grupoMuscularSecundarioSelect" class="form-label">Grupo Muscular Secundário (opcional)</label>
+            <select id="grupoMuscularSecundarioSelect" name="grupo_muscular_secundario" class="form-select">
+              <option selected value="">Nenhum</option>
             </select>
           </div>
         </div>
 
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary" id="btnSalvarExercicio">Salvar Exercício</button>
+          <button type="submit" class="btn btn-primary">Salvar Exercício</button>
         </div>
       </form>
     </div>
@@ -76,60 +54,81 @@
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const form = document.getElementById('formCadastrarExercicio');
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('formCadastrarExercicio');
+  const grupoPrincipalSelect = document.getElementById('grupoMuscularSelect');
+  const grupoSecundarioSelect = document.getElementById('grupoMuscularSecundarioSelect');
+  const modal = document.getElementById('modalCadExercicio');
 
-    if (form) {
-      form.addEventListener('submit', function (e) {
-        // Validação manual dos campos obrigatórios
-        const camposObrigatorios = form.querySelectorAll('[required]');
-        let formularioValido = true;
-        let primeiroInvalido = null;
-
-        camposObrigatorios.forEach(campo => {
-          const valor = campo.value.trim();
-
-          if (!valor) {
-            campo.classList.add('is-invalid');
-            campo.classList.remove('is-valid');
-            formularioValido = false;
-            if (!primeiroInvalido) {
-              primeiroInvalido = campo;
-            }
-          } else {
-            campo.classList.remove('is-invalid');
-            campo.classList.add('is-valid');
-          }
-
-          // Corrige em tempo real
-          const evento = campo.tagName === 'SELECT' ? 'change' : 'input';
-          campo.addEventListener(evento, () => {
-            if (campo.value.trim()) {
-              campo.classList.remove('is-invalid');
-              campo.classList.add('is-valid');
-            } else {
-              campo.classList.remove('is-valid');
-              campo.classList.add('is-invalid');
-            }
-          });
-        });
-
-        if (!formularioValido && primeiroInvalido) {
-          e.preventDefault(); // Impede envio se inválido
-          primeiroInvalido.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+  // Carrega os grupos musculares via API
+  fetch('/api/grupos-musculares/')
+    .then(res => res.json())
+    .then(data => {
+      data.forEach(grupo => {
+        const option = new Option(grupo.nome, grupo.id);
+        grupoPrincipalSelect.appendChild(option);
+        grupoSecundarioSelect.appendChild(option.cloneNode(true));
       });
+    });
+
+  // Intercepta o submit e envia via fetch
+  form.addEventListener('submit', async function (event) {
+    event.preventDefault(); // Impede envio tradicional
+
+    if (!form.checkValidity()) {
+      form.classList.add('was-validated');
+      return;
     }
-    
-    // Limpar formulário quando modal for fechado
-    const modal = document.getElementById('modalCadExercicio');
-    if (modal) {
-      modal.addEventListener('hidden.bs.modal', function() {
-        form.reset();
-        form.querySelectorAll('.is-valid, .is-invalid').forEach(el => {
-          el.classList.remove('is-valid', 'is-invalid');
-        });
+
+    const nome = document.getElementById("exercicioNome").value.trim();
+    const descricao = document.getElementById("exercicioDescricao").value.trim();
+    const grupoPrincipal = grupoPrincipalSelect.value;
+    const grupoSecundario = grupoSecundarioSelect.value;
+
+    const payload = {
+      nome: nome,
+      descricao: descricao,
+      grupo_muscular: grupoPrincipal,
+    };
+
+    // Só envia grupo_muscular_secundario se foi selecionado
+    if (grupoSecundario) {
+      payload.grupo_muscular_secundario = grupoSecundario;
+    }
+
+    try {
+      const response = await fetch('/api/exercicios/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify(payload)
       });
+
+      if (response.ok) {
+        const result = await response.json();
+        bootstrap.Modal.getInstance(modal).hide();
+        form.reset();
+        form.classList.remove('was-validated');
+      } else {
+        const erro = await response.json();
+        console.error("Erro ao salvar:", erro);
+        alert("Erro ao cadastrar exercício.");
+      }
+    } catch (err) {
+      console.error("Erro de rede:", err);
+      alert("Erro de conexão ao tentar salvar o exercício.");
     }
   });
+
+  // Reset ao fechar o modal
+  modal.addEventListener('hidden.bs.modal', () => {
+    form.reset();
+    form.classList.remove('was-validated');
+    form.querySelectorAll('.is-valid, .is-invalid').forEach(el => el.classList.remove('is-valid', 'is-invalid'));
+    grupoPrincipalSelect.selectedIndex = 0;
+    grupoSecundarioSelect.selectedIndex = 0;
+  });
+});
 </script>

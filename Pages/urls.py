@@ -1,11 +1,24 @@
 from Pages.views.util_views import alterar_senha_primeiro_acesso
-from django.urls import path
+from django.urls import path, include
 from .views.evento_views import *
 from .views.aluno_views import *
 from .views.usuario_views import *
 from .views.avaliacao_views import *
 from .views.treino_views import *
-from Pages.views.auth_views import *
+from .views.auth_views import *
+from .views.exercico_views import *
+from .views import treino_views
+
+
+
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register(r'grupos-musculares', GrupoMuscularViewSet)
+router.register(r'exercicios', ExercicioViewSet, basename='exercicio')
+router.register(r'treinos-aluno', TreinoAlunoViewSet, basename='treino-aluno')
+
+
 
 urlpatterns = [
     path('alterar-senha-primeiro-acesso/', alterar_senha_primeiro_acesso, name='alterar_senha_primeiro_acesso'),
@@ -21,22 +34,22 @@ urlpatterns = [
     path('importar_excel/', importar_excel, name='importar_excel'),
     path('aluno/<int:aluno_id>/', view_aluno, name='view_aluno'),
     path('aluno/<int:aluno_id>/atualizar/', atualizar_aluno, name='atualizar_aluno'),
+
+    # Avaliações
     path('aluno/<int:aluno_id>/avaliacao/cadastrar/', cadastrar_avaliacao, name='cadastrar_avaliacao'),
     path('avaliacoes/<int:avaliacao_id>/editar/', editar_avaliacao, name='editar_avaliacao'),
     path('aluno/<int:aluno_id>/atualizardadospessoais/', atualizar_dados_complementares, name='atualizar_dados_complementares'),
     
-
     # Treinos
-    path('treinos/', treinos_view, name='treinos'),
-    path('treinos/lista/', pagina_treinos, name='pagina_treinos'),
-    path('treinos/novo/', cadastrar_treino, name='cadastrar_treino'),
-    path('cadastrar-exercicio/', cadastrar_exercicio, name='cadastrar_exercicio'),
+    path('api/treinos/<int:treino_id>/exercicios/', treino_exercicios, name='treino_exercicios'),
+    path('treinos/', treino_views.treinos_view, name='treinos'),
+
+    
+
+    # Exercícios
     path('exercicios_json/', exercicios_json, name='exercicios_json'),
     path('salvar_treino/', salvar_treino, name='salvar_treino'),
-    path('aluno/<int:aluno_id>/treinos/', treinos_aluno, name='treinos_aluno'),
-    path('api/treinos/<int:treino_id>/exercicios/', treino_exercicios, name='treino_exercicios'),
-    path('api/criar-treino-de-template/', criar_treino_de_template, name='criar_treino_de_template'),
-    path('aluno/<int:aluno_id>/nova-rotina/', cadastrar_treino, name='nova_rotina'),
+    path("api/", include(router.urls)),
 
     # Eventos
     path('eventos_json/', eventos_json, name='eventos_json'),
