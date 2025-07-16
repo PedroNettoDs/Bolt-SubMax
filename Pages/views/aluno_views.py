@@ -7,6 +7,7 @@ from django.contrib import messages
 
 # Lista alunos com busca
 def alunos_view(request):
+    """Exibe a lista de alunos com opção de busca por nome ou telefone."""
     search = request.GET.get('q', '')
     try:
         planos = Plano.objects.all()
@@ -23,6 +24,7 @@ def alunos_view(request):
 
 # Cadastra novo aluno
 def cadastrar_aluno(request):
+    """Cadastra um novo aluno com os dados fornecidos no formulário."""
     if request.method == 'POST':
         data_str = request.POST.get('data_nascimento')
         try:
@@ -70,6 +72,7 @@ def cadastrar_aluno(request):
 
 # Atualiza aluno
 def atualizar_aluno(request, aluno_id):
+    """Atualiza os dados de um aluno existente."""
     try:
         aluno = get_object_or_404(Aluno, id=aluno_id)
     except OperationalError:
@@ -95,6 +98,7 @@ def atualizar_aluno(request, aluno_id):
 
 # Função para listar alunos gerando tags (se houver campo 'etiquetas')
 def lista_alunos(request):
+    """Lista todos os alunos e gera tags para cada um, se o campo 'etiquetas' existir."""
     try:
         alunos = Aluno.objects.all()
     except OperationalError:
@@ -105,6 +109,7 @@ def lista_alunos(request):
 
 # Importa arquivo Excel e salva alunos no banco
 def importar_excel(request):
+    """Importa dados de alunos de um arquivo Excel e salva no banco de dados."""
     if request.method == 'POST' and request.FILES.get('arquivoExcel'):
         try:
             arquivo_excel = request.FILES['arquivoExcel']
@@ -166,6 +171,7 @@ def importar_excel(request):
 # TODO CORRIGIR: VALIDADOR DE ERRO
 
 def atualizar_dados_complementares(request, aluno_id):
+    """Atualiza os dados complementares de um aluno."""
     aluno = get_object_or_404(Aluno, id=aluno_id)
 
     if request.method == 'POST':

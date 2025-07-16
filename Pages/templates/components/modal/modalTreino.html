@@ -149,16 +149,16 @@ const CacheManager = {
 // Função otimizada para carregar exercícios
 async function carregarExercicios() {
   if (isLoadingExercises) {
-    console.log('⏳ Carregamento já em andamento...');
+    console.log('Carregamento já em andamento...');
     return exercisesCache || [];
   }
 
-  console.log('🔄 Carregando exercícios...');
+  console.log('Carregando exercícios...');
   
   // Verifica cache válido
   const cachedData = CacheManager.get();
   if (cachedData) {
-    console.log('✅ Exercícios carregados do cache:', cachedData.length);
+    console.log('Exercícios carregados do cache:', cachedData.length);
     exercisesCache = cachedData;
     return exercisesCache;
   }
@@ -178,11 +178,11 @@ async function carregarExercicios() {
     // Salva no cache
     CacheManager.set(exercisesCache);
     
-    console.log('✅ Exercícios carregados da API:', exercisesCache.length);
+    console.log('Exercícios carregados da API:', exercisesCache.length);
     return exercisesCache;
     
   } catch (error) {
-    console.error('❌ Erro ao carregar exercícios:', error);
+    console.error('Erro ao carregar exercícios:', error);
     mostrarNotificacao(`Erro ao carregar exercícios: ${error.message}`, 'error');
     return [];
   } finally {
@@ -203,7 +203,7 @@ function filtrarExercicios(termo) {
 
 /*****************  2. CONFIGURAÇÃO SELECT2 OTIMIZADA  *****************/
 function configurarSelect2Exercicio($select) {
-  console.log('🔧 Configurando Select2 para:', $select.attr('id') || 'select sem ID');
+  console.log('Configurando Select2 para:', $select.attr('id') || 'select sem ID');
   
   // Destrói instância existente
   if ($select.hasClass('select2-hidden-accessible')) {
@@ -244,7 +244,7 @@ function configurarSelect2Exercicio($select) {
               }))
             });
           } catch (error) {
-            console.error('❌ Erro na busca:', error);
+            console.error('Erro na busca:', error);
             failure();
           } finally {
             $container.removeClass('select2-container--loading');
@@ -278,12 +278,12 @@ function configurarSelect2Exercicio($select) {
 
   try {
     $select.select2(config);
-    console.log('✅ Select2 inicializado com sucesso');
+    console.log('Select2 inicializado com sucesso');
     
     // Event listeners
     $select.on('select2:select', function (e) {
       const data = e.params.data;
-      console.log('🎯 Exercício selecionado:', data.text);
+      console.log('Exercício selecionado:', data.text);
       
       atualizarGrupoMuscular($select, data);
       
@@ -294,12 +294,12 @@ function configurarSelect2Exercicio($select) {
     });
 
     $select.on('select2:clear', function () {
-      console.log('🗑️ Exercício removido');
+      console.log('Exercício removido');
       atualizarGrupoMuscular($select, null);
     });
     
   } catch (error) {
-    console.error('❌ Erro ao inicializar Select2:', error);
+    console.error('Erro ao inicializar Select2:', error);
     mostrarNotificacao('Erro ao configurar busca de exercícios', 'error');
   }
 }
@@ -456,7 +456,7 @@ function carregarGraficoMuscular() {
 
 /*****************  5. GESTÃO COMPLETA DE TREINOS  *****************/
 async function salvarTreino() {
-  console.log('💾 Iniciando salvamento do treino...');
+  console.log('Iniciando salvamento do treino...');
   
   const btnSalvar = document.getElementById('btnSalvarTreino');
   const textoOriginal = btnSalvar.innerHTML;
@@ -497,7 +497,7 @@ async function salvarTreino() {
     const resultado = await response.json();
     
     if (resultado.success) {
-      console.log('✅ Treino salvo com sucesso:', resultado);
+      console.log('Treino salvo com sucesso:', resultado);
       
       // Fecha o modal
       bootstrap.Modal.getInstance(document.getElementById('treinoModal')).hide();
@@ -516,7 +516,7 @@ async function salvarTreino() {
     }
     
   } catch (error) {
-    console.error('❌ Erro ao salvar treino:', error);
+    console.error('Erro ao salvar treino:', error);
     mostrarNotificacao(`Erro ao salvar treino: ${error.message}`, 'error');
   } finally {
     // Restaura botão
@@ -543,7 +543,7 @@ async function coletarDadosTreino() {
       const $selectExercicio = $(row).find('.select-exercicio');
       
       if (!$selectExercicio.hasClass('select2-hidden-accessible')) {
-        console.warn('⚠️ Select2 não inicializado para linha');
+        console.warn('Select2 não inicializado para linha');
         continue;
       }
       
@@ -582,6 +582,13 @@ async function coletarDadosTreino() {
   };
 }
 
+// =====================================================
+//  🔧 Helper: converte Date → 'YYYY-MM-DD'
+// =====================================================
+function formatDateISO(dateObj = new Date()) {
+  return dateObj.toISOString().split('T')[0];
+}
+
 function getAlunoId() {
   // Tenta obter da URL
   const urlPath = window.location.pathname;
@@ -601,7 +608,7 @@ function getAlunoId() {
     return parseInt(alunoIdElement.dataset.alunoId);
   }
   
-  console.warn('⚠️ ID do aluno não encontrado');
+  console.warn('ID do aluno não encontrado');
   return null;
 }
 
@@ -618,17 +625,17 @@ function getCSRFToken() {
   const csrfInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
   if (csrfInput) return csrfInput.value;
   
-  console.warn('⚠️ CSRF token não encontrado');
+  console.warn('CSRF token não encontrado');
   return '';
 }
 
 async function recarregarAbaTreinos() {
-  console.log('🔄 Recarregando aba de treinos...');
+  console.log('Recarregando aba de treinos...');
   
   try {
     const alunoId = getAlunoId();
     if (!alunoId) {
-      console.warn('⚠️ ID do aluno não encontrado para recarregar treinos');
+      console.warn('ID do aluno não encontrado para recarregar treinos');
       return;
     }
 
@@ -643,18 +650,18 @@ async function recarregarAbaTreinos() {
     const abaTreinos = document.querySelector('#treinos');
     if (abaTreinos) {
       abaTreinos.innerHTML = html;
-      console.log('✅ Aba de treinos recarregada');
+      console.log('Aba de treinos recarregada');
       
       // Inicializa quaisquer scripts necessários na aba
       if (typeof initTreinosTab === 'function') {
         initTreinosTab();
       }
     } else {
-      console.warn('⚠️ Aba de treinos não encontrada');
+      console.warn('Aba de treinos não encontrada');
     }
     
   } catch (error) {
-    console.error('❌ Erro ao recarregar aba de treinos:', error);
+    console.error('Erro ao recarregar aba de treinos:', error);
     mostrarNotificacao('Não foi possível atualizar a lista de treinos', 'error');
   }
 }
@@ -692,7 +699,7 @@ function mostrarNotificacao(mensagem, tipo = 'info') {
 
 /*****************  6. FUNÇÕES DE CADASTRO DE EXERCÍCIO  *****************/
 function abrirModalCadastroExercicio() {
-  console.log('🆕 Abrindo modal de cadastro de exercício');
+  console.log('Abrindo modal de cadastro de exercício');
   
   // Fecha o dropdown do Select2
   $('.select-exercicio').select2('close');
@@ -703,7 +710,7 @@ function abrirModalCadastroExercicio() {
 }
 
 function recarregarExercicios() {
-  console.log('🔄 Recarregando cache de exercícios...');
+  console.log('Recarregando cache de exercícios...');
   
   // Limpa o cache
   exercisesCache = null;
@@ -711,7 +718,7 @@ function recarregarExercicios() {
   
   // Recarrega o cache
   carregarExercicios().then(() => {
-    console.log('✅ Cache de exercícios recarregado');
+    console.log('Cache de exercícios recarregado');
     
     // Reinicializa todos os selects
     $('.select-exercicio').each(function() {
@@ -750,11 +757,11 @@ function handleMetodoChange(selectEl) {
 
 /*****************  8. CRUD de Exercícios e Séries ***********/
 function adicionarExercicio(treinoId) {
-  console.log('➕ Adicionando exercício para treino:', treinoId);
+  console.log('Adicionando exercício para treino:', treinoId);
   
   const tabela = document.getElementById(`tabelaExercicios_${treinoId}`);
   if (!tabela) {
-    console.error('❌ Tabela não encontrada:', `tabelaExercicios_${treinoId}`);
+    console.error('Tabela não encontrada:', `tabelaExercicios_${treinoId}`);
     return;
   }
   
@@ -801,7 +808,7 @@ function adicionarExercicio(treinoId) {
     if (typeof $ !== 'undefined' && typeof $.fn.select2 !== 'undefined') {
       configurarSelect2Exercicio($selectExercicio);
     } else {
-      console.error('❌ jQuery ou Select2 não disponível');
+      console.error('jQuery ou Select2 não disponível');
     }
   }, 100);
   
@@ -999,25 +1006,25 @@ function mostrarInputNovaSerie() {
 
 /*****************  12. INICIALIZAÇÃO E EVENT LISTENERS *****************/
 document.addEventListener('DOMContentLoaded', async function() {
-  console.log('🚀 Inicializando sistema de gerenciamento de exercícios...');
+  console.log('Inicializando sistema de gerenciamento de exercícios...');
   
   // Carrega o gráfico corporal
   carregarGraficoMuscular();
   
   // Verificar dependências
   if (typeof $ === 'undefined') {
-    console.error('❌ jQuery não está carregado!');
+    console.error('jQuery não está carregado!');
     mostrarNotificacao('Erro: jQuery não está disponível', 'error');
     return;
   }
   
   if (typeof $.fn.select2 === 'undefined') {
-    console.error('❌ Select2 não está carregado!');
+    console.error('Select2 não está carregado!');
     mostrarNotificacao('Erro: Select2 não está disponível', 'error');
     return;
   }
   
-  console.log('✅ Todas as dependências carregadas');
+  console.log('Todas as dependências carregadas');
 
   try {
     // Carrega o cache de exercícios
@@ -1056,7 +1063,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const modalCadExercicio = document.getElementById('modalCadExercicio');
     if (modalCadExercicio) {
       modalCadExercicio.addEventListener('hidden.bs.modal', function() {
-        console.log('🔄 Modal de cadastro fechado, recarregando exercícios...');
+        console.log('Modal de cadastro fechado, recarregando exercícios...');
         setTimeout(() => {
           recarregarExercicios();
         }, 500);
@@ -1067,7 +1074,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const formCadExercicio = document.getElementById('formCadastrarExercicio');
     if (formCadExercicio) {
       formCadExercicio.addEventListener('submit', function(e) {
-        console.log('📝 Formulário de exercício submetido');
+        console.log('Formulário de exercício submetido');
         // O recarregamento será feito quando o modal for fechado
       });
     }
@@ -1076,7 +1083,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const modalTreino = document.getElementById('treinoModal');
     if (modalTreino) {
       modalTreino.addEventListener('shown.bs.modal', function() {
-        console.log('🔍 Modal de treino aberto, verificando cache...');
+        console.log('Modal de treino aberto, verificando cache...');
         
         // Verifica se o cache está carregado
         if (!exercisesCache) {
@@ -1090,7 +1097,7 @@ document.addEventListener('DOMContentLoaded', async function() {
       });
       
       modalTreino.addEventListener('hidden.bs.modal', function() {
-        console.log('🧹 Limpando modal de treino...');
+        console.log('Limpando modal de treino...');
         
         // Limpa todas as abas
         document.getElementById('conteudoTreinos').innerHTML = '';
@@ -1101,10 +1108,10 @@ document.addEventListener('DOMContentLoaded', async function() {
       });
     }
 
-    console.log('✅ Sistema inicializado com sucesso');
+    console.log('Sistema inicializado com sucesso');
     
   } catch (error) {
-    console.error('❌ Erro na inicialização:', error);
+    console.error('Erro na inicialização:', error);
     mostrarNotificacao('Erro ao inicializar o sistema', 'error');
   }
 });

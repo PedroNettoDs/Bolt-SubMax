@@ -17,6 +17,7 @@ from django.contrib import messages
 
 # Detalha aluno e exibe últimas 10 avaliações
 def view_aluno(request, aluno_id):
+    """Exibe os detalhes de um aluno, incluindo suas últimas 10 avaliações e rotinas de treino."""
     aluno = get_object_or_404(Aluno, id=aluno_id)
     avaliacoes = Avaliacao.objects.filter(aluno=aluno).order_by('-data')[:10]
     rotinas_aluno = TreinoAluno.objects.filter(aluno=aluno).order_by('-criado_em')
@@ -40,6 +41,7 @@ def view_aluno(request, aluno_id):
 
 # Cadastra avaliação
 def cadastrar_avaliacao(request, aluno_id):
+    """Cadastra uma nova avaliação para o aluno especificado."""
     aluno = get_object_or_404(Aluno, id=aluno_id)
     if request.method == 'POST':
         foto = request.FILES.get('foto_avaliacao')
@@ -115,6 +117,7 @@ from django.http import HttpResponse
 
 # Atualiza uma avaliação existente
 def editar_avaliacao(request, avaliacao_id):
+    """Atualiza uma avaliação existente com os dados fornecidos no formulário."""
     avaliacao = get_object_or_404(Avaliacao, id=avaliacao_id)
     aluno = Aluno.objects.only('sexo', 'data_nascimento').get(id=avaliacao.aluno.id)
 

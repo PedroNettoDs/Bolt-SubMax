@@ -54,8 +54,6 @@ def create_muscles(sender, app_config, **kwargs):
     """
     Depois de cada `migrate`, insere (ou atualiza) os músculos fixos.
     """
-    if app_config.label != 'exercicios':   # evita rodar em outros apps
-        return
 
     for slug, nome in MUSCLE_PRESETS.items():
         GrupoMuscular.objects.update_or_create(
